@@ -2,8 +2,6 @@ package main
 
 import "fmt"
 
-point := 343
-
 func main() {
 	// Declaration of variables
 	// First Declare variable name and type
