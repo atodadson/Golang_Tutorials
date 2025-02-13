@@ -9,7 +9,7 @@ func main() {
 	printMessage := true
 
 	// Take note of the structure of the structure of the if block
-	
+
 	if printMessage {
 		fmt.Println("Hey, print message is true")
 	}
@@ -17,18 +17,17 @@ func main() {
 	account_credit := 200
 	account_balance := -300
 	// If block with a condition to be evaluated
-	if account_balance + account_credit > 0 {
+	if account_balance+account_credit > 0 {
 		fmt.Println("I have money to buy stuffs.")
 	} else {
 		fmt.Println("Go get yourself a good job.")
 	}
 
-
 	// Using else if. Taking you to places if and else can't get you to
 	class_score := -40
 	if class_score < 0 {
 		fmt.Println("Man, the test score should not be negative")
-	} else if class_score >= 70{
+	} else if class_score >= 70 {
 		fmt.Println("Yoo, that is Grade A")
 	} else if class_score >= 60 {
 		fmt.Println("Not bad, Grade B")
