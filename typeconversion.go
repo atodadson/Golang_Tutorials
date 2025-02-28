@@ -47,22 +47,28 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
 )
 
 // String to Integer conversion
+// func main() {
+// 	var no int = 100
+// 	fmt.Println(reflect.TypeOf(no))
+
+// 	var intStr string = "100"
+// 	fourBaseEightBitInt, _ := strconv.ParseInt(intStr, 4, 64) // takes the input as base 4 and converts to in
+
+// 	tenBaseSixteenBitInt, _ := strconv.ParseInt(intStr, 10, 16) // no 100, and
+
+// 	fmt.Println(fourBaseEightBitInt)
+// 	fmt.Println(tenBaseSixteenBitInt)
+// 	fmt.Println(reflect.TypeOf(fourBaseEightBitInt))
+// 	fmt.Println(reflect.TypeOf(tenBaseSixteenBitInt))
+// }
+
+// Integer to String conversion
 func main() {
-	var no int = 100
-	fmt.Println(reflect.TypeOf(no))
-
-	var intStr string = "100"
-	fourBaseEightBitInt, _ := strconv.ParseInt(intStr, 4, 64) // takes the input as base 4 and converts to in
-
-	tenBaseSixteenBitInt, _ := strconv.ParseInt(intStr, 10, 16) // no 100, and
-
-	fmt.Println(fourBaseEightBitInt)
-	fmt.Println(tenBaseSixteenBitInt)
-	fmt.Println(reflect.TypeOf(fourBaseEightBitInt))
-	fmt.Println(reflect.TypeOf(tenBaseSixteenBitInt))
+	var noOfPlayers = 8
+	strin, _ := strconv.Itoa(noOfPlayers)
+	fmt.Println(strin)
 }
