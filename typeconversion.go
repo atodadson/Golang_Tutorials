@@ -16,15 +16,31 @@ import (
 // 	fmt.Printf("my_string has type %T, my_bool has type %T, my_int has type %T, my_float has type %T", my_string, my_bool, my_int, my_float)
 // }
 
-func add(first int, second int) int {
-	return first + second
-}
+// func add(first int, second int) int {
+// 	return first + second
+// }
+
+// func main() {
+// 	no1, error1 := strconv.Atoi(os.Args[1])
+// 	no2, error2 := strconv.Atoi(os.Args[2])
+// 	var sum = add(no1, no2)
+
+// 	fmt.Println(error1, error2)
+// 	fmt.Println(sum)
+// }
 
 func main() {
-	no1, error1 := strconv.Atoi(os.Args[1])
-	no2, error2 := strconv.Atoi(os.Args[2])
-	var sum = add(no1, no2)
+	if len(os.Args) < 2 {
+		fmt.Println("Please provide a number as an argument!")
+		return
+	}
 
-	fmt.Println(error1, error2)
-	fmt.Println(sum)
+	no, err := strconv.Atoi(os.Args[1])
+	fmt.Println(no)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Couldn't convert: " + os.Args[1])
+	} else {
+		fmt.Println(no)
+	}
 }
