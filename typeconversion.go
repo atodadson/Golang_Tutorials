@@ -46,7 +46,7 @@ package main
 // }
 
 import (
-	"fmt"
+	"os"
 	"strconv"
 )
 
@@ -67,8 +67,24 @@ import (
 // }
 
 // Integer to String conversion
+// func main() {
+// 	var noOfPlayers = 8
+// 	strin := strconv.Itoa(noOfPlayers)
+// 	fmt.Println(strin)
+// }
+
+//                             Challenge
+// What happens if you run the program like so?
+// go run typeconversion.go one two
+// Handle any conversion error and call panic() if there's a conversion error.
+
+func add(first int, second int) int {
+	return first + second
+}
+
 func main() {
-	var noOfPlayers = 8
-	strin, _ := strconv.Itoa(noOfPlayers)
-	fmt.Println(strin)
+	if len(os.Args) != 2 {
+		panic("Expected 2 command line arguments")
+	}
+	no1, err1 = strconv.Atoi(os.Args)
 }
