@@ -1,10 +1,10 @@
 package main
 
-import (
-	"fmt"
-	"os"
-	"strconv"
-)
+// import (
+// 	"fmt"
+// 	"os"
+// 	"strconv"
+// )
 
 // func main() {
 // 	my_string := "Hello"
@@ -29,18 +29,40 @@ import (
 // 	fmt.Println(sum)
 // }
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Please provide a number as an argument!")
-		return
-	}
+// func main() {
+// 	if len(os.Args) < 2 {
+// 		fmt.Println("Please provide a number as an argument!")
+// 		return
+// 	}
 
-	no, err := strconv.Atoi(os.Args[1])
-	fmt.Println(no)
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println("Couldn't convert: " + os.Args[1])
-	} else {
-		fmt.Println(no)
-	}
+// 	no, err := strconv.Atoi(os.Args[1])
+// 	fmt.Println(no)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		fmt.Println("Couldn't convert: " + os.Args[1])
+// 	} else {
+// 		fmt.Println(no)
+// 	}
+// }
+
+import (
+	"fmt"
+	"reflect"
+	"strconv"
+)
+
+// String to Integer conversion
+func main() {
+	var no int = 100
+	fmt.Println(reflect.TypeOf(no))
+
+	var intStr string = "100"
+	fourBaseEightBitInt, _ := strconv.ParseInt(intStr, 4, 64) // takes the input as base 4 and converts to in
+
+	tenBaseSixteenBitInt, _ := strconv.ParseInt(intStr, 10, 16) // no 100, and
+
+	fmt.Println(fourBaseEightBitInt)
+	fmt.Println(tenBaseSixteenBitInt)
+	fmt.Println(reflect.TypeOf(fourBaseEightBitInt))
+	fmt.Println(reflect.TypeOf(tenBaseSixteenBitInt))
 }
