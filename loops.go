@@ -19,11 +19,23 @@ import "fmt"
 // }
 
 // 3. The for each structure
+// func main() {
+//     var cars = [4]string{"volvo", "bugatti", "benz", "bentley"}
+//
+//     for index, item := range cars {
+//         fmt.Printf("Index: %d, item: %s\n", index ,item)
+//     }
+// }
+
+// Example, simple for loop (while) that breaks upon user's command
 func main() {
-    var cars = [4]string{"volvo", "bugatti", "benz", "bentley"}
-
-    for index, item := range cars {
-        fmt.Printf("Index: %d, item: %s\n", index ,item)
+    endLoop := true
+    command := ""
+    for endLoop {
+        fmt.Println("Type in your command: ")
+        fmt.Scan(&command)
+        if command == "quit" {
+            endLoop = false
+        }
     }
-
 }
