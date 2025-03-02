@@ -41,13 +41,27 @@ import "fmt"
 // }
 
 // Crontrolling the loop with break
+// func main() {
+//     arr := []int{-1, 0 , 1, 2, 3, 4}
+//     for i := 0; i < 10; i++ {
+//         fmt.Printf("Loop number %d\n", (i+1) )
+//         if arr[i] > 3 {
+//             fmt.Println("Condition satisfied, breaking loop.....")
+//             break
+//         }
+//     }
+// }
+
+// Using continue in loops
 func main() {
-    arr := []int{-1, 0 , 1, 2, 3, 4}
-    for i := 0; i < 10; i++ {
-        fmt.Printf("Loop number %d\n", (i+1) )
-        if arr[i] > 3 {
-            fmt.Println("Condition satisfied, breaking loop.....")
-            break
+    arr := []string{"apple", "banana", "mango", "stone", "orange"}
+    fmt.Println("I like eating: ")
+    for index, item := range arr {
+        if index == 3 {
+            continue
         }
+        /* The for loops just jumps to the next and does not excecute this
+        line when the above condition is met */
+        fmt.Printf("%v. %s\n", (index+1), item)
     }
 }
