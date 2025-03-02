@@ -28,14 +28,26 @@ import "fmt"
 // }
 
 // Example, simple for loop (while) that breaks upon user's command
+// func main() {
+//     endLoop := true
+//     command := ""
+//     for endLoop {
+//         fmt.Println("Type in your command: ")
+//         fmt.Scan(&command)
+//         if command == "quit" {
+//             endLoop = false
+//         }
+//     }
+// }
+
+// Crontrolling the loop with break
 func main() {
-    endLoop := true
-    command := ""
-    for endLoop {
-        fmt.Println("Type in your command: ")
-        fmt.Scan(&command)
-        if command == "quit" {
-            endLoop = false
+    arr := []int{-1, 0 , 1, 2, 3, 4}
+    for i := 0; i < 10; i++ {
+        fmt.Printf("Loop number %d\n", (i+1) )
+        if arr[i] > 3 {
+            fmt.Println("Condition satisfied, breaking loop.....")
+            break
         }
     }
 }
