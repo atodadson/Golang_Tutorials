@@ -12,7 +12,7 @@ func add(first int, second int) int {
     return (first + second)
 }
 
-
+// Functions with specified parameter names and return names as well as types
 func mod(first int, second int) (remainder int) {
     remainder = first % second
     return
@@ -20,6 +20,9 @@ func mod(first int, second int) (remainder int) {
 
 func main() {
     greet()
-    result := add(20, 5)
-    fmt.Printf("result is %v", result)
+    num1, num2 := 20, 5
+    result := add(num1, num2)
+    modulo := mod(num1, num2)
+    fmt.Printf("result is %v \n", result)
+    fmt.Printf("modulo is: %v \n", modulo)
 }
