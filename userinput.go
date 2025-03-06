@@ -32,16 +32,33 @@ Here’s an example output of such a program:
 9 Players are: Alice Bob Jean
 */
 
+// Has logic error. Can you find out why
+// func main() {
+//     fmt.Println("Enter number of players")
+//     var num_of_players int
+//     fmt.Scanf("%d", &num_of_players)
+//     var names string
+//     for i := 1; i <= num_of_players; i++ {
+//         var name string
+//         fmt.Printf("Enter Player %d name: \n", i)
+//         fmt.Scanf("%s", &name)
+//         names = names + " " + name
+//     }
+//     fmt.Printf("Names of players are: %v", names)
+// }
+
+// Has solved the logic error
 func main() {
-    fmt.Println("Enter number of players")
-    var num_of_players int
-    fmt.Scanf("%d", &num_of_players)
-    var names string
-    for i := 1; i <= num_of_players; i++ {
-        var name string
-        fmt.Printf("Enter Player %d name: \n", i)
-        fmt.Scanf("%s", &name)
-        names = names + " " + name
-    }
-    fmt.Printf("Names of players are: %v", names)
+	fmt.Println("Enter number of players")
+	var num_of_players int
+	fmt.Scanf("%d\n", &num_of_players) // Ensure newline is consumed
+
+	var names string
+	for i := 1; i <= num_of_players; i++ {
+		var name string
+		fmt.Printf("Enter Player %d name: \n", i)
+		fmt.Scanln(&name) // Read full name
+		names = names + " " + name
+	}
+	fmt.Printf("Names of players are:%v\n", names)
 }
