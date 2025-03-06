@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+"fmt"
+)
 
 // Functions with no parameters with no return
 func greet() {
@@ -18,11 +20,21 @@ func mod(first int, second int) (remainder int) {
     return
 }
 
+// Functions with multiple returns
+func divide(first int, second int) (quotient int, remainder int) {
+    remainder = mod(first, second)
+    quotient = first/second
+    return
+}
+
+
 func main() {
     greet()
-    num1, num2 := 20, 5
+    num1, num2 := 20, 3
     result := add(num1, num2)
     modulo := mod(num1, num2)
-    fmt.Printf("result is %v \n", result)
+    quotient, remainder := divide(num1, num2)
+    fmt.Printf("sum is %v \n", result)
     fmt.Printf("modulo is: %v \n", modulo)
+    fmt.Printf("Quotient: %v and Remainder %v", quotient, remainder)
 }
