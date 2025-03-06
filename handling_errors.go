@@ -3,6 +3,9 @@ package main
 import (
 "fmt"
 "errors"
+"os"
+"runtime/debug"
+"log"
 )
 
 // Using recover and defer
@@ -21,8 +24,6 @@ func Divide(dividend float64, divisor float64) (answer float64) {
     return dividend / divisor
 }
 
-// runtime/debug and error logging
-
 
 // Defining errors
 var NumTooSmall = errors.New("Expected a number greater than zero")
@@ -37,6 +38,16 @@ func ReturnPositive(no int) (int, error) {
 
 func main() {
     Divide(20, 0)
-    num, err := ReturnPositive(12)
+    num, err := ReturnPositive(-12)
+    check := debug.Stack()
+    fmt.Println(check)
+
+    // Error logging
+    f, err := os.OpenFile("logs.txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+    if err != nil {
+        log.Println(err)
+    }
+    log.SetOutput(f)
+
     fmt.Printf("Num: %v, Error: %v", num, err)
 }
