@@ -22,6 +22,21 @@ func main() {
     hisAccount := Account{"Kofi", "Manu", 1234.43, 12}
 
     fmt.Printf("Account Details: %v \n", myAccount)
-    fmt.Printf("Account Details: %v", hisAccount)
+    fmt.Printf("Account Details: %v \n", hisAccount)
+
+    type Address struct {
+        city string
+        street string
+        postal string
+    }
+
+    // Embedding a struct in another struct
+    type Person struct {
+        name string
+        address Address
+    }
+
+    person1 := Person{"Kwame BIOS", Address{"New York", "Street 34", "SWE23"}}
+    fmt.Printf("person1: %v", person1)
 
 }
