@@ -16,9 +16,24 @@ func main() {
     // Adding entries
     ages["kofi"] = 34
     ages["Kwame"] = 12
-    ages["Kobina"] = 65
+    ages["Kwabena"] = 65
 
     fmt.Println(ages)
 
+    // Checking if a key exists
+    key := "Kwame"
+    _ , exists := ages[key]
+    fmt.Printf("Key exists = %v \n", exists)
+
+    // You can use the above construct in an if statement - To correct
+//     if _, exists := ages["Kwabena"] {
+//         age = ages[key]
+//         fmt.Printf("His age is: %v", age)
+//     }
+
+    // Iterating over maps
+    for key, value := range ages {
+        fmt.Printf("%s's age is: %d", key, value)
+    }
 
 }
