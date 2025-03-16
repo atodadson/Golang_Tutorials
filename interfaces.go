@@ -65,5 +65,10 @@ func main() {
     PrintArea(shape1)
     PrintArea(shape2)
 
+    // Type assertions - Helps to access the underlying fields of the interface
+    fmt.Println(shape1.(Square).length) // We accessed length field of Square
+    fmt.Println(shape2.(Rectangle).width) // We accessed width field of Rectange
+
+
 
 }
