@@ -1,0 +1,8 @@
+// To run a file
+go run <filename.go>
+
+// To start a project
+go mod init <project_name>
+
+// To add module requirements and sums
+go mod tidy
