@@ -33,10 +33,17 @@ func main() {
     // Embedding a struct in another struct
     type Person struct {
         name string
-        address Address
+        address Address // You can use the type as the name by ommitting the name
     }
 
     person1 := Person{"Kwame BIOS", Address{"New York", "Street 34", "SWE23"}}
-    fmt.Printf("person1: %v", person1)
+    fmt.Printf("person1: %v \n", person1)
+
+    // Adding implementation to structs
+    func strr(a Address) string {
+        return fmt.Sprintf("City: %s, Street: %s, Postal: %s", a.city, a.street, a.postal)
+    }
+
+    fmt.Println(strr(person1.address))
 
 }
