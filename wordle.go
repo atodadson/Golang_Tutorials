@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Getword() (randword string) {
+func Getword() (randword string, wordlist []string) {
 	// Open the file
 	file, err := os.Open("words.txt")
 	if err != nil {
@@ -34,6 +34,7 @@ func Getword() (randword string) {
 	randomIndex := rand.Intn(len(words))
 
 	randword = words[randomIndex]
+	wordlist = words
 	return
 }
 
@@ -85,8 +86,9 @@ func ProcessGuess(guess string, word string) map[string]string {
 }
 
 func main() {
-	randword := Getword()
+	randword, _ := Getword()
 	// fmt.Println("The random word is: ", randword)
+	fmt.Printf("---------Welcome to Dadson's wordle game-------------\nGuess the randomly selected 5 letter word")
 	var guess string
 	guesses_left := 7
 
