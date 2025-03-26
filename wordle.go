@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+// ANSI escape codes for different colors
+var red = "\033[31m"
+var green = "\033[32m"
+var yellow = "\033[33m"
+var reset = "\033[0m"
+
 func Getword() (randword string, wordlist []string) {
 	// Open the file
 	file, err := os.Open("mywords.txt")
@@ -86,10 +92,6 @@ func ProcessGuess(guess string, word string) [5]string {
 }
 
 func GetColour(colour_name string) (colour string) {
-	// ANSI escape codes for different colors
-	red := "\033[31m"
-	green := "\033[32m"
-	yellow := "\033[33m"
 	if colour_name == "Green" {
 		colour = green
 	} else if colour_name == "Yellow" {
@@ -103,11 +105,19 @@ func GetColour(colour_name string) (colour string) {
 }
 
 func main() {
-	reset := "\033[0m"
 	randword, _ := Getword()
 	randword = strings.ToLower(randword)
 	// fmt.Println("The random word is: ", randword)
-	fmt.Printf("---------Welcome to Dadson's wordle game-------------\n------Guess the randomly selected 5 letter word------\n")
+	fmt.Printf(green + "\n            WELCOME TO DADSON'S WORDLE GAME             \n     GUESS THE 5-LETTER WORD AND WIN A CASH PRICE      \n\n" + reset)
+
+	// menu :=
+	// `Commands
+	// 1. New Game
+	// 2. Score
+	// 3. Quit
+	// `
+	// fmt.Println(menu)
+
 	var guess string
 	guesses_left := 7
 
@@ -115,6 +125,11 @@ func main() {
 		guesses_left--
 		fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
 		fmt.Scan(&guess)
+		for len(guess) != 5 {
+			fmt.Printf("You entered a %d letter-word. Enter a 5 letter-word\n", len(guess))
+			fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
+			fmt.Scan(&guess)
+		}
 		response := ProcessGuess(guess, randword)
 
 		// fmt.Println(response)
