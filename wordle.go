@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 )
 
 func Getword() (randword string, wordlist []string) {
 	// Open the file
-	file, err := os.Open("words.txt")
+	file, err := os.Open("mywords.txt")
 	if err != nil {
 		fmt.Printf("Error opening file: %v\n", err)
 		return
@@ -47,7 +48,7 @@ func InWord(char rune, word string) bool {
 	return false
 }
 
-func allValuesGreen(m map[string]string) bool {
+func allValuesGreen(m [5]string) bool {
 	for _, value := range m {
 		if value != "Green" {
 			return false
@@ -69,26 +70,44 @@ func allValuesGreen(m map[string]string) bool {
 // }
 
 // ProcessGuess processes the guess and returns a response
-func ProcessGuess(guess string, word string) map[string]string {
-	response := make(map[string]string)
+func ProcessGuess(guess string, word string) [5]string {
+	response := [5]string{}
 
 	for index, char := range guess {
 		if rune(word[index]) == char {
-			response[string(char)] = "Green"
+			response[index] = "Green"
 		} else if InWord(char, word) {
-			response[string(char)] = "Yellow"
+			response[index] = "Yellow"
 		} else {
-			response[string(char)] = "Black"
+			response[index] = "Red"
 		}
 	}
-
 	return response
 }
 
+func GetColour(colour_name string) (colour string) {
+	// ANSI escape codes for different colors
+	red := "\033[31m"
+	green := "\033[32m"
+	yellow := "\033[33m"
+	if colour_name == "Green" {
+		colour = green
+	} else if colour_name == "Yellow" {
+		colour = yellow
+	} else if colour_name == "Red" {
+		colour = red
+	} else {
+		panic(fmt.Sprintf("GetColour Func received unexpected input: %s", colour))
+	}
+	return
+}
+
 func main() {
+	reset := "\033[0m"
 	randword, _ := Getword()
+	randword = strings.ToLower(randword)
 	// fmt.Println("The random word is: ", randword)
-	fmt.Printf("---------Welcome to Dadson's wordle game-------------\nGuess the randomly selected 5 letter word")
+	fmt.Printf("---------Welcome to Dadson's wordle game-------------\n------Guess the randomly selected 5 letter word------\n")
 	var guess string
 	guesses_left := 7
 
@@ -99,13 +118,11 @@ func main() {
 		response := ProcessGuess(guess, randword)
 
 		// fmt.Println(response)
-		fmt.Printf("%s:%s,  %s:%s,  %s:%s,  %s:%s, %s:%s \n",
-			string(guess[0]), response[string(guess[0])],
-			string(guess[1]), response[string(guess[1])],
-			string(guess[2]), response[string(guess[2])],
-			string(guess[3]), response[string(guess[3])],
-			string(guess[4]), response[string(guess[4])],
-		)
+		fmt.Printf(GetColour(response[0]) + string(guess[0]) + " " + reset)
+		fmt.Printf(GetColour(response[1]) + string(guess[1]) + " " + reset)
+		fmt.Printf(GetColour(response[2]) + string(guess[2]) + " " + reset)
+		fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
+		fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
 		if allValuesGreen(response) {
 			fmt.Println("Yeeey, You got it right. That's a great guess")
 			break
