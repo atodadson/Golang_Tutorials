@@ -7,7 +7,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 )
 
 // ANSI escape codes for different colors
@@ -80,7 +79,7 @@ func Getword() (randword string, wordlist []string) {
 	}
 
 	// Generate a random index
-	rand.Seed(time.Now().UnixNano()) // Seed the random generator
+	// rand.Seed(time.Now().UnixNano()) // Seed the random generator
 	randomIndex := rand.Intn(len(words))
 
 	randword = words[randomIndex]
@@ -155,20 +154,17 @@ var GameRules = fmt.Sprintf("1. Each guess must be a valid 5-letter word\nExampl
 	"S is in the word and in the right spot")
 
 func main() {
-	randword, _ := Getword()
-	randword = strings.ToUpper(randword)
 	// fmt.Println("The random word is: ", randword)
 	fmt.Printf(green + "\n            WELCOME" + yellow + " TO" + red + " DADSON'S" + yellow + " WORDLE" + green + " GAME\n" + reset)
 
 	menu :=
-		`Commands
+		`
 	1. Play
 	2. How to Play
 	3. High Scores
 	4. Quit
 
-	Enter 1,2,3 or 4
-	`
+	Enter 1,2,3 or 4`
 	var command string
 
 	for true {
@@ -181,13 +177,22 @@ func main() {
 		} else if command == "3" {
 			fmt.Println("Not up yet")
 		} else if command == "1" {
+			level := 0
+			var randword string
 			for true {
+				level++
+				fmt.Println("\n=====================================================================")
+				fmt.Printf("                            LEVEL %v\n", level)
+				fmt.Println("=====================================================================")
+
+				// Declaration of variable for each level
 				keyboard := CreateKeyboard()
 				ShowKeyboard(keyboard)
 				var guess string
 				guesses_left := 7
-
 				var guessed_right = true
+				randword, _ = Getword()
+				randword = strings.ToUpper(randword)
 
 				if !guessed_right {
 					break
@@ -221,16 +226,19 @@ func main() {
 					fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
 					fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
 					if allValuesGreen(response) {
-						fmt.Println("Yeeey, You got it right. That's a great guess")
+						fmt.Println("Yeeey, You got it right. That's a great guess. Progress to the next level")
+						guessed_right = true
 						break
 					}
+					guessed_right = false
 					ShowKeyboard(keyboard)
 				}
+				fmt.Println("The word is: ", randword)
 			}
 
 		} else {
 			fmt.Println("Unexpected command. Enter One of (1,2,3 or 4)")
 		}
-		// fmt.Println("The word is: ", randword)
+
 	}
 }
