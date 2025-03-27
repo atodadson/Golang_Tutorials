@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"regexp"
 )
 
 // ANSI escape codes for different colors
@@ -14,6 +15,11 @@ var red = "\033[31m"
 var green = "\033[32m"
 var yellow = "\033[33m"
 var reset = "\033[0m"
+
+// REGEX pattern for matching words
+var pattern = "^[a-zA-Z]+$"
+var reg, _ = regexp.Compile(pattern)
+
 
 func Getword() (randword string, wordlist []string) {
 	// Open the file
@@ -62,6 +68,7 @@ func allValuesGreen(m [5]string) bool {
 	}
 	return true
 }
+
 
 // func ProcessGuess (guess string, word string) (response array){
 // 	for index, char := range guess {
@@ -127,6 +134,11 @@ func main() {
 		fmt.Scan(&guess)
 		for len(guess) != 5 {
 			fmt.Printf("You entered a %d letter-word. Enter a 5 letter-word\n", len(guess))
+			fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
+			fmt.Scan(&guess)
+		}
+		for !reg.MatchString(guess){
+		    fmt.Printf("Your word contains invalid characters\n")
 			fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
 			fmt.Scan(&guess)
 		}
