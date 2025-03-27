@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"regexp"
 	"strings"
 	"time"
-	"regexp"
 )
 
 // ANSI escape codes for different colors
@@ -22,33 +22,40 @@ var reg, _ = regexp.Compile(pattern)
 
 // Keyboard display
 func CreateKeyboard() (keyboard map[string]string) {
-    keyboard = make(map[string]string, 6)
-    for i := 'A'; i <= 'Z'; i++ {
-        keyboard[string(i)] = reset
-    }
-    return keyboard
+	keyboard = make(map[string]string, 6)
+	for i := 'A'; i <= 'Z'; i++ {
+		keyboard[string(i)] = reset
+	}
+	return keyboard
 }
 
 func ShowKeyboard(keyboard map[string]string) {
-    row1 := []string{"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"}
-    row2 := []string{"A", "S", "D", "F", "G", "H", "J", "K", "L"}
-    row3 := []string{"Z", "X", "C", "V", "B", "N", "M"}
-    for _, letter := range row1 {
-        fmt.Printf(keyboard[letter] + letter + " " + reset )
-    }
-    fmt.Println("")
-    for _, letter := range row2 {
-        fmt.Printf(keyboard[letter] + letter + " " + reset )
-    }
-    fmt.Println("")
-    for _, letter := range row3 {
-        fmt.Printf(keyboard[letter] + letter + " " + reset )
-    }
-    fmt.Println("")
+	row1 := []string{"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"}
+	row2 := []string{"A", "S", "D", "F", "G", "H", "J", "K", "L"}
+	row3 := []string{"Z", "X", "C", "V", "B", "N", "M"}
+	for _, letter := range row1 {
+		fmt.Printf(keyboard[letter] + letter + " " + reset)
+	}
+	fmt.Println("")
+	for _, letter := range row2 {
+		fmt.Printf(keyboard[letter] + letter + " " + reset)
+	}
+	fmt.Println("")
+	for _, letter := range row3 {
+		fmt.Printf(keyboard[letter] + letter + " " + reset)
+	}
 }
 
 func UpdateKeyboard(letter string, colour string, keyboard map[string]string) {
-
+	if colour == "Green" {
+		keyboard[letter] = green
+	} else if colour == "Yellow" {
+		if keyboard[letter] == reset {
+			keyboard[letter] = yellow
+		}
+	} else if colour == "Red" {
+		keyboard[letter] = red
+	}
 }
 
 func Getword() (randword string, wordlist []string) {
@@ -99,7 +106,6 @@ func allValuesGreen(m [5]string) bool {
 	return true
 }
 
-
 // func ProcessGuess (guess string, word string) (response array){
 // 	for index, char := range guess {
 // 			if word[index] == char {
@@ -141,53 +147,77 @@ func GetColour(colour_name string) (colour string) {
 	return
 }
 
+var GameRules = fmt.Sprintf("1. Each guess must be a valid 5-letter word\nExample: " +
+	"2. The color of each letter will change to show how close your guess was to the word\n" +
+	red + "W O R " + yellow + "D " + green + "S means:\n" + reset +
+	"'W', 'O' and 'R' are not in the word\n" +
+	"D is in the word but in the wrong spot\n" +
+	"S is in the word and in the right spot")
+
 func main() {
 	randword, _ := Getword()
 	randword = strings.ToUpper(randword)
 	// fmt.Println("The random word is: ", randword)
-	fmt.Printf(green + "\n            WELCOME TO DADSON'S WORDLE GAME             \n     GUESS THE 5-LETTER WORD AND WIN A CASH PRICE      \n\n" + reset)
+	fmt.Printf(green + "\n            WELCOME" + yellow + " TO" + red + " DADSON'S" + yellow + " WORDLE" + green + " GAME\n" + reset)
 
-	// menu :=
-	// `Commands
-	// 1. New Game
-	// 2. Score
-	// 3. Quit
-	// `
-	// fmt.Println(menu)
+	menu :=
+		`Commands
+		1. New Game
+		2. How to Play
+		3. High Scores
+		4. Quit
 
-    keyboard := CreateKeyboard()
-    ShowKeyboard(keyboard)
-	var guess string
-	guesses_left := 7
+		Enter 1,2,3 or 4
+		`
 
-	for i := 1; i < 7; i++ {
-		guesses_left--
-		fmt.Printf("\n\n[%v Guesses left] Guess the word: \n", guesses_left)
-		fmt.Scan(&guess)
-		for len(guess) != 5 {
-			fmt.Printf("You entered a %d letter-word. Enter a 5 letter-word\n", len(guess))
-			fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
-			fmt.Scan(&guess)
-		}
-		guess = strings.ToUpper(guess)
-		for !reg.MatchString(guess){
-		    fmt.Printf("Your word contains invalid characters\n")
-			fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
-			fmt.Scan(&guess)
-		}
-		response := ProcessGuess(guess, randword)
-
-		// fmt.Println(response)
-		fmt.Printf(GetColour(response[0]) + string(guess[0]) + " " + reset)
-		fmt.Printf(GetColour(response[1]) + string(guess[1]) + " " + reset)
-		fmt.Printf(GetColour(response[2]) + string(guess[2]) + " " + reset)
-		fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
-		fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
-		if allValuesGreen(response) {
-			fmt.Println("Yeeey, You got it right. That's a great guess")
+	for true {
+		fmt.Println(menu)
+		var command string
+		fmt.Scanf("%s", &command)
+		if command == "4" || strings.ToUpper(command) == "quit" {
 			break
+		} else if command == "2" {
+			fmt.Println(GameRules)
+		} else if command == "1" {
+			keyboard := CreateKeyboard()
+			ShowKeyboard(keyboard)
+			var guess string
+			guesses_left := 7
+
+			for i := 1; i < 7; i++ {
+				guesses_left--
+				fmt.Printf("\n\n[%v Guesses left] Guess the word: \n", guesses_left)
+				fmt.Scan(&guess)
+				for len(guess) != 5 {
+					fmt.Printf("You entered a %d letter-word. Enter a 5 letter-word\n", len(guess))
+					fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
+					fmt.Scan(&guess)
+				}
+				guess = strings.ToUpper(guess)
+				for !reg.MatchString(guess) {
+					fmt.Printf("Your word contains invalid characters\n")
+					fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
+					fmt.Scan(&guess)
+				}
+				response := ProcessGuess(guess, randword)
+				for i := 0; i < 5; i++ {
+					UpdateKeyboard(string(guess[i]), response[i], keyboard)
+				}
+
+				// fmt.Println(response)
+
+				fmt.Printf(GetColour(response[0]) + string(guess[0]) + " " + reset)
+				fmt.Printf(GetColour(response[1]) + string(guess[1]) + " " + reset)
+				fmt.Printf(GetColour(response[2]) + string(guess[2]) + " " + reset)
+				fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
+				fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
+				if allValuesGreen(response) {
+					fmt.Println("Yeeey, You got it right. That's a great guess")
+					break
+				}
+				ShowKeyboard(keyboard)
+			}
 		}
-		ShowKeyboard(keyboard)
+		fmt.Println("The word is: ", randword)
 	}
-	fmt.Println("The word is: ", randword)
 }
