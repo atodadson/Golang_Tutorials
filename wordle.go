@@ -149,7 +149,7 @@ func GetColour(colour_name string) (colour string) {
 
 var GameRules = fmt.Sprintf("1. Each guess must be a valid 5-letter word\nExample: " +
 	"2. The color of each letter will change to show how close your guess was to the word\n" +
-	red + "W O R " + yellow + "D " + green + "S means:\n" + reset +
+	red + "W O R " + yellow + "D " + green + "S" + reset + "means:\n" +
 	"'W', 'O' and 'R' are not in the word\n" +
 	"D is in the word but in the wrong spot\n" +
 	"S is in the word and in the right spot")
@@ -162,62 +162,75 @@ func main() {
 
 	menu :=
 		`Commands
-		1. New Game
-		2. How to Play
-		3. High Scores
-		4. Quit
+	1. Play
+	2. How to Play
+	3. High Scores
+	4. Quit
 
-		Enter 1,2,3 or 4
-		`
+	Enter 1,2,3 or 4
+	`
+	var command string
 
 	for true {
 		fmt.Println(menu)
-		var command string
 		fmt.Scanf("%s", &command)
-		if command == "4" || strings.ToUpper(command) == "quit" {
+		if command == "4" || strings.ToUpper(command) == "QUIT" {
 			break
 		} else if command == "2" {
 			fmt.Println(GameRules)
+		} else if command == "3" {
+			fmt.Println("Not up yet")
 		} else if command == "1" {
-			keyboard := CreateKeyboard()
-			ShowKeyboard(keyboard)
-			var guess string
-			guesses_left := 7
+			for true {
+				keyboard := CreateKeyboard()
+				ShowKeyboard(keyboard)
+				var guess string
+				guesses_left := 7
 
-			for i := 1; i < 7; i++ {
-				guesses_left--
-				fmt.Printf("\n\n[%v Guesses left] Guess the word: \n", guesses_left)
-				fmt.Scan(&guess)
-				for len(guess) != 5 {
-					fmt.Printf("You entered a %d letter-word. Enter a 5 letter-word\n", len(guess))
-					fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
-					fmt.Scan(&guess)
-				}
-				guess = strings.ToUpper(guess)
-				for !reg.MatchString(guess) {
-					fmt.Printf("Your word contains invalid characters\n")
-					fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
-					fmt.Scan(&guess)
-				}
-				response := ProcessGuess(guess, randword)
-				for i := 0; i < 5; i++ {
-					UpdateKeyboard(string(guess[i]), response[i], keyboard)
-				}
+				var guessed_right = true
 
-				// fmt.Println(response)
-
-				fmt.Printf(GetColour(response[0]) + string(guess[0]) + " " + reset)
-				fmt.Printf(GetColour(response[1]) + string(guess[1]) + " " + reset)
-				fmt.Printf(GetColour(response[2]) + string(guess[2]) + " " + reset)
-				fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
-				fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
-				if allValuesGreen(response) {
-					fmt.Println("Yeeey, You got it right. That's a great guess")
+				if !guessed_right {
 					break
 				}
-				ShowKeyboard(keyboard)
+
+				for i := 1; i < 7; i++ {
+					guesses_left--
+					fmt.Printf("\n\n[%v Guesses left] Guess the word: \n", guesses_left)
+					fmt.Scan(&guess)
+					for len(guess) != 5 {
+						fmt.Printf("You entered a %d letter-word. Enter a 5 letter-word\n", len(guess))
+						fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
+						fmt.Scan(&guess)
+					}
+					guess = strings.ToUpper(guess)
+					for !reg.MatchString(guess) {
+						fmt.Printf("Your word contains invalid characters\n")
+						fmt.Printf("[%v Guesses left] Guess the word: \n", guesses_left)
+						fmt.Scan(&guess)
+					}
+					response := ProcessGuess(guess, randword)
+					for i := 0; i < 5; i++ {
+						UpdateKeyboard(string(guess[i]), response[i], keyboard)
+					}
+
+					// fmt.Println(response)
+
+					fmt.Printf(GetColour(response[0]) + string(guess[0]) + " " + reset)
+					fmt.Printf(GetColour(response[1]) + string(guess[1]) + " " + reset)
+					fmt.Printf(GetColour(response[2]) + string(guess[2]) + " " + reset)
+					fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
+					fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
+					if allValuesGreen(response) {
+						fmt.Println("Yeeey, You got it right. That's a great guess")
+						break
+					}
+					ShowKeyboard(keyboard)
+				}
 			}
+
+		} else {
+			fmt.Println("Unexpected command. Enter One of (1,2,3 or 4)")
 		}
-		fmt.Println("The word is: ", randword)
+		// fmt.Println("The word is: ", randword)
 	}
 }
