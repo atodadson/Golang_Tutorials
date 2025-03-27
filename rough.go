@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+    "fmt"
+)
 
 func main() {
 	// ANSI escape codes for different colors
@@ -16,4 +18,8 @@ func main() {
 	fmt.Println(yellow + "This is yellow text!" + reset)
 	fmt.Println("This is normal text!")
 	fmt.Println(len(aaa))
+
+	for i := 'A'; i <= 'Z'; i++ {
+	    fmt.Println(string(i))
+	}
 }
