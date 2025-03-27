@@ -47,6 +47,9 @@ func ShowKeyboard(keyboard map[string]string) {
     fmt.Println("")
 }
 
+func UpdateKeyboard(letter string, colour string, keyboard map[string]string) {
+
+}
 
 func Getword() (randword string, wordlist []string) {
 	// Open the file
