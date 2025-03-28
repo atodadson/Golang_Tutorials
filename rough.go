@@ -77,4 +77,8 @@ func main() {
 	indict := WordIn_Dict("pumma", array)
 	fmt.Println(indict)
 
+	for i := 1; i < 1000; i++ {
+		fmt.Printf("%v %v\n", i, string(i))
+	}
+
 }
