@@ -1,9 +1,41 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 )
+
+func Get_Dict() (dictionary []string) {
+	// Open the first file
+	file, err := os.Open("new_words.txt")
+	if err != nil {
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	// Read all words into a slice
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		dictionary = append(dictionary, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading file: %v\n", err)
+		return
+	}
+	return
+}
+
+func WordIn_Dict(guess string, dictionary []string) bool {
+	for _, word := range dictionary {
+		if guess == word {
+			return true
+		}
+	}
+	return false
+}
 
 func main() {
 	// ANSI escape codes for different colors
@@ -35,15 +67,14 @@ func main() {
 	// 		}
 	// 	}
 	// }
+	// REGEX pattern for matching words
+	// var pattern = "^[A-Z]+$"
+	// var reg, _ = regexp.Compile(pattern)
 
-	file, err := os.ReadFile("mywords.txt")
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		for index, word := range file {
-			fmt.Println(index, string(word))
-		}
-		// fmt.Println(string(file))
-	}
+	array := Get_Dict()
+	fmt.Printf("%v %v", array, len(array))
+
+	indict := WordIn_Dict("pumma", array)
+	fmt.Println(indict)
 
 }
