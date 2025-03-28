@@ -26,6 +26,7 @@ func CreateKeyboard() (keyboard map[string]string) {
 // Score values
 var score_list = map[int]int{1: 13, 2: 8, 3: 5, 4: 3, 5: 2, 6: 1}
 
+// Prints the current colouring of the keyboard
 func ShowKeyboard(keyboard map[string]string) {
 	row1 := []string{"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"}
 	row2 := []string{"A", "S", "D", "F", "G", "H", "J", "K", "L"}
@@ -44,6 +45,7 @@ func ShowKeyboard(keyboard map[string]string) {
 	fmt.Println("")
 }
 
+// Updates the colour of the keyboard after processing response
 func UpdateKeyboard(letter string, colour string, keyboard map[string]string) map[string]string {
 	if colour == "Green" {
 		keyboard[letter] = green
@@ -56,6 +58,8 @@ func UpdateKeyboard(letter string, colour string, keyboard map[string]string) ma
 	}
 	return keyboard
 }
+
+// Returns all the words in the 5-letter words dictionary
 func GetDict() (dictionary []string) {
 	// Open the first file
 	file, err := os.Open("new_words.txt")
@@ -79,6 +83,7 @@ func GetDict() (dictionary []string) {
 	return
 }
 
+// Returns a random word for the game words
 func GetWord() (randword string) {
 	// Open the first file
 	file, err := os.Open("mywords.txt")
@@ -106,6 +111,7 @@ func GetWord() (randword string) {
 	return
 }
 
+// Checks if a letter is in a word
 func InWord(char rune, word string) bool {
 	for _, character := range word {
 		if char == character {
@@ -115,6 +121,7 @@ func InWord(char rune, word string) bool {
 	return false
 }
 
+// Checks if processed response checks green for all letters of the word
 func allValuesGreen(m [5]string) bool {
 	for _, value := range m {
 		if value != "Green" {
@@ -124,6 +131,7 @@ func allValuesGreen(m [5]string) bool {
 	return true
 }
 
+// Checks if word is in file containing wordlist
 func WordInDict(guess string, dictionary []string) bool {
 	for _, word := range dictionary {
 		if strings.ToUpper(guess) == strings.ToUpper(word) {
@@ -198,7 +206,6 @@ func main() {
 			level := 0
 			var randword string
 			var dictionary = GetDict()
-			fmt.Println("Thisis the len of dictionary: " + string(len(dictionary)))
 			var score = 0
 			var guessed_right = true
 			for true {
@@ -256,7 +263,7 @@ func main() {
 					fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
 					fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
 					if allValuesGreen(response) {
-						fmt.Println("Yeeey, You got it right. That's a great guess. Progress to the next level")
+						fmt.Println("Yeeey, You got it right. That's a great guess. Progress to the next word")
 						guessed_right = true
 						score = score + score_list[i]
 						break
