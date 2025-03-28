@@ -6,3 +6,13 @@ go mod init <project_name>
 
 // To add module requirements and sums
 go mod tidy
+
+// Runs the test in the current working directory
+go test
+
+// Runs a verbose version
+go test -v
+
+// Run test by pattern
+go test -run <pattern>
+
