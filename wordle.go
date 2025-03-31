@@ -174,9 +174,9 @@ var GameRules = fmt.Sprintf("===================================================
 	"1. Each guess must be a valid 5-letter word\n" +
 	"2. The color of each letter will change to show how close your guess was to the word\nExample: " +
 	red + "W O R " + yellow + "D " + green + "S" + reset + " means:\n" +
-	"'W', 'O' and 'R' are not in the word\n" +
-	"D is in the word but in the wrong spot\n" +
-	"S is in the word and in the right spot\n" + "=================================================================\n\n")
+	red + "'W', 'O', 'R'" + reset + " are not in the word\n" +
+	yellow + "D" + reset + " is in the word but in the wrong spot\n" +
+	green + "S" + reset + " is in the word and in the right spot\n" + "=================================================================\n\n")
 
 func main() {
 	// fmt.Println("The random word is: ", randword)
