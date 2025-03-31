@@ -7,17 +7,19 @@ import (
     "strings"
 )
 
-func main() {
-    var player string
+func getPlayerName(message string) (player string) {
     reader := bufio.NewReader(os.Stdin)
 
-    fmt.Println("Enter all names")
+    fmt.Println(message)
     player, err := reader.ReadString('\n')
     player = strings.TrimSpace(player)
     if err != nil {
         fmt.Println(err)
     }
-//     fmt.Println("Enter player name")
-//     fmt.ReadString(&player)
+    return
+}
+
+func main() {
+    player := getPlayerName("I know your name: ")
     fmt.Println(player)
 }
