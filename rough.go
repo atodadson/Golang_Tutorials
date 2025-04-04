@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
-	"fmt"
-	"os"
 	"encoding/csv"
+	"fmt"
 	"log"
-	"time"
+	"os"
+	"sort"
 	"strconv"
+	"strings"
+	"time"
 )
 
 func Get_Dict() (dictionary []string) {
@@ -52,6 +54,7 @@ func fileExists(filename string) bool {
 
 	// If no error, the file exists
 	return true
+}
 
 func SortData(data [][]string) [][]string {
 	// Custom sorting function based on the age (index 2)
@@ -78,63 +81,127 @@ func SortData(data [][]string) [][]string {
 }
 
 func getPlayerName(message string) (player string) {
-    reader := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(os.Stdin)
 
-    fmt.Println(message)
-    player, err := reader.ReadString('\n')
-    player = strings.TrimSpace(player)
-    if err != nil {
-        fmt.Println(err)
-    }
-    defer break
-    for len(player_name) > 20 {
-        player_name = getPlayerName("20 chars exceeded. Enter player name again")
-    }
-    return
+	fmt.Println(message)
+	player, err := reader.ReadString('\n')
+	player = strings.TrimSpace(player)
+	if err != nil {
+		fmt.Println(err)
+	}
+	for len(player) > 20 {
+		player = getPlayerName("20 chars exceeded. Enter player name again")
+	}
+	return
 }
 
-func getScoreInfo() (scoreData [][]string, scores []int){
-    csv_file ,err := os.Open("Highscore.csv")
-    if err != nil {
-        fmt.Println(err)
-    }
-    defer csv_file.Close()
+func getScoreInfo() (scoreData [][]string, scores []int) {
+	csv_file, err := os.Open("Highscore.csv")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer csv_file.Close()
 
-    reader := csv.NewReader(csv_file)
-    records, err := reader.ReadAll()
-    for _, record := range records {
-        scoreData = append(scoreData, record)
-        score, _ := strconv.Atoi(record[2])
-        scores = append(scores, score)
-    }
-    scoreData, scores = scoreData[1:], scores[1:]
-    return
+	reader := csv.NewReader(csv_file)
+	records, err := reader.ReadAll()
+	for _, record := range records {
+		scoreData = append(scoreData, record)
+		score, _ := strconv.Atoi(record[2])
+		scores = append(scores, score)
+	}
+	scoreData, scores = scoreData[1:], scores[1:]
+	return
 }
+
+func addFirstScore(score string, player_name string) {
+	header := []string{"Rank", "Player Name", "Score", "DateTime"}
+	hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer hs_file.Close()
+
+	writer := csv.NewWriter(hs_file)
+	writer.Write(header)
+	curr_time := time.Now()
+	formatted_time := curr_time.Format("2006-01-02 15:04:05")
+	writer.Write([]string{"1", player_name, score, formatted_time})
+}
+
+func addScores(scoreData [][]string) {
+	header := []string{"Rank", "Player Name", "Score", "DateTime"}
+	hs_file, err := os.OpenFile("Highscore.csv", os.O_WRONLY, 0644)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer hs_file.Close()
+
+	writer := csv.NewWriter(hs_file)
+	writer.Write(header)
+	for index, record := range scoreData {
+		if index > 4 {
+			break
+		}
+		writer.Write(record)
+	}
+}
+
+// func addScore(score string, player_name string, scoreData bool) {
+// 	header := []string{"Rank", "Player Name", "Score", "DateTime"}
+
+// 	if add_header {
+// 		hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
+// 		defer hs_file.Close()
+
+// 		writer := csv.NewWriter(hs_file)
+// 		writer.Write(header)
+// 		curr_time := time.Now()
+// 		formatted_time := curr_time.Format("2006-01-02 15:04:05")
+// 		writer.Write([]string{"1", player_name, score, formatted_time})
+// 	} else {
+// 		hs_file, err := os.Open("Highscore.csv")
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
+// 		defer hs_file.Close()
+
+// 		scoreData, scores := getScoreInfo()
+
+// 		writer := csv.NewWriter(hs_file)
+// 		curr_time := time.Now()
+// 		formatted_time := curr_time.Format("2006-01-02 15:04:05")
+// 		writer.Write([]string{"1", player_name, score, formatted_time})
+// 	}
+// }
 
 func updateHighScore(score string) {
-    var player_name string
-    scorevalue, _ := strconv.Atoi(score)
-    filename := "Highscore.csv"
-    csv_file := os.Open(filename)
-    reader := csv.NewReader()
-    writer := csv.NewWriter()
-    header := []string{"Rank", "Player Name", "Score", "DateTime"}
-    if !fileExists(filename) {
-        hs_file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0644)
-        if err != nil {
-            fmt.Println(err)
-        }
-        defer hs_file.Close()
+	var player_name string
+	scorevalue, _ := strconv.Atoi(score)
 
-        player_name = getPlayerName("Enter player name. Max 20 chars: ")
+	if !fileExists("Highscore.csv") {
+		player_name = getPlayerName("Enter player name. Max 20 chars: ")
+		addFirstScore(score, player_name)
 
-        writer.Write(header)
-        curr_time := time.Now()
-        curr_time = curr_time.Format("2006-01-02 15:04:05")
-        writer.Write([]string{"1", player_name, score, curr_time})
-    } else if (scorevalue == 0) {
-        ...
-    } else if
+	} else {
+		scoreData, scores := getScoreInfo()
+		if isHighScore(scorevalue, scores) {
+			curr_time := time.Now()
+			formatted_time := curr_time.Format("2006-01-02 15:04:05")
+			new_record := []string{"1", player_name, score, formatted_time}
+			scoreData = append(scoreData, new_record)
+			scoreData = SortData(scoreData)
+
+			addScores(scoreData)
+		} else {
+			// Do nothing
+		}
+	}
+
 }
 
 func main() {
@@ -171,45 +238,45 @@ func main() {
 	// var pattern = "^[A-Z]+$"
 	// var reg, _ = regexp.Compile(pattern)
 
-// 	array := Get_Dict()
-// 	fmt.Printf("%v %v", array, len(array))
-//
-// 	indict := WordIn_Dict("pumma", array)
-// 	fmt.Println(indict)
+	// 	array := Get_Dict()
+	// 	fmt.Printf("%v %v", array, len(array))
+	//
+	// 	indict := WordIn_Dict("pumma", array)
+	// 	fmt.Println(indict)
 
-// 	file, err := os.OpenFile("Highscore.ddl", os.O_WRONLY|os.O_APPEND, 0644)
-// 	if err != nil {
-// 	    fmt.Printf("This error occured: %v", err)
-// 	}
-// 	defer file.Close()
+	// 	file, err := os.OpenFile("Highscore.ddl", os.O_WRONLY|os.O_APPEND, 0644)
+	// 	if err != nil {
+	// 	    fmt.Printf("This error occured: %v", err)
+	// 	}
+	// 	defer file.Close()
 
-    csv_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
-    if err != nil {
-        fmt.Println(err)
-    }
-//     defer csv_file.Close()
+	csv_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//     defer csv_file.Close()
 
-    writer := csv.NewWriter(csv_file)
+	writer := csv.NewWriter(csv_file)
 
-    header := []string{"Position", "Player Name", "Score", "DateTime"}
+	header := []string{"Position", "Player Name", "Score", "DateTime"}
 
-    scores := [][]string{
-        {"1", "Ato", "34", "2025-03-22 15:35:59"},
-        {"2", "Kwame", "53", "2022-03-09 18:41:12"},
-        {"3", "Kofi", "23", "2025-04-12 14:51:12"},
-        {"4", "Yofi", "67", "2025-06-22 09:32:12"},
-        {"5", "Kweku", "79", "2025-08-21 15:35:12"},
-    }
+	scores := [][]string{
+		{"1", "Ato", "34", "2025-03-22 15:35:59"},
+		{"2", "Kwame", "53", "2022-03-09 18:41:12"},
+		{"3", "Kofi", "23", "2025-04-12 14:51:12"},
+		{"4", "Yofi", "67", "2025-06-22 09:32:12"},
+		{"5", "Kweku", "79", "2025-08-21 15:35:12"},
+	}
 
-    writer.Write(header)
-    for _, row := range scores {
-        write_err := writer.Write(row)
-        if write_err != nil {
-            log.Fatal(write_err)
-        }
-    }
-    writer.Flush()
+	writer.Write(header)
+	for _, row := range scores {
+		write_err := writer.Write(row)
+		if write_err != nil {
+			log.Fatal(write_err)
+		}
+	}
+	writer.Flush()
 
-    fmt.Printf("writer type: %T, csv_file type: %T", writer, csv_file)
+	fmt.Printf("writer type: %T, csv_file type: %T", writer, csv_file)
 
 }

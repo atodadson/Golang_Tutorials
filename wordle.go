@@ -2,11 +2,20 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"math/rand"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
+	"time"
 )
+
+/*
+1. Speed race. Set time, get the most words
+2. Slow but sure
+*/
 
 // ANSI escape codes for different colors
 var red = "\033[31m"
@@ -178,23 +187,187 @@ var GameRules = fmt.Sprintf("===================================================
 	yellow + "D" + reset + " is in the word but in the wrong spot\n" +
 	green + "S" + reset + " is in the word and in the right spot\n" + "=================================================================\n\n")
 
+func fileExists(filename string) bool {
+	// Use os.Stat to get the file information
+	_, err := os.Stat(filename)
+
+	// Check if the error is of type "file does not exist"
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	// If no error, the file exists
+	return true
+}
+
+func SortData(data [][]string) [][]string {
+	// Custom sorting function based on the age (index 2)
+	sort.SliceStable(data, func(i, j int) bool {
+		// Convert the age from string to integer for proper comparison
+		ageI, errI := strconv.Atoi(data[i][2])
+		ageJ, errJ := strconv.Atoi(data[j][2])
+
+		// If there's an error in conversion, consider them equal for now
+		if errI != nil || errJ != nil {
+			return false
+		}
+
+		// Sort in descending order based on age
+		return ageI > ageJ
+	})
+
+	// Update index 0 (ranking) based on the sorted order
+	for i := range data {
+		data[i][0] = strconv.Itoa(i + 1) // Update ranking with 1-based index
+	}
+
+	return data
+}
+
+func getPlayerName(message string) (player string) {
+	fmt.Println(message)
+	fmt.Scanf("\n", &player)
+	return
+}
+
+func isHighScore(newscore int, scores []int) bool {
+	for _, score := range scores {
+		if newscore > score {
+			return true
+		}
+	}
+	return false
+}
+
+func highScorePosition(newscore int, scores []int) (pos int) {
+	sort.Ints(scores)
+	pos = 0
+	for index, score := range scores {
+		if newscore > score {
+			pos = index + 1
+			return
+		}
+	}
+	return
+}
+
+func getScoreInfo() (scoreData [][]string, scores []int) {
+	csv_file, err := os.Open("Highscore.csv")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer csv_file.Close()
+
+	reader := csv.NewReader(csv_file)
+	records, err := reader.ReadAll()
+	for _, record := range records {
+		scoreData = append(scoreData, record)
+		score, _ := strconv.Atoi(record[2])
+		scores = append(scores, score)
+	}
+	scoreData, scores = scoreData[1:], scores[1:]
+	return
+}
+
+func addFirstScore(score string, player_name string) {
+	header := []string{"Rank", "Player Name", "Score", "DateTime"}
+	hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer hs_file.Close()
+
+	writer := csv.NewWriter(hs_file)
+	writer.Write(header)
+	curr_time := time.Now()
+	formatted_time := curr_time.Format("2006-01-02 15:04:05")
+	writer.Write([]string{"1", player_name, score, formatted_time})
+	writer.Flush()
+}
+
+func addScores(scoreData [][]string) {
+	header := []string{"Rank", "Player Name", "Score", "DateTime"}
+	hs_file, err := os.OpenFile("Highscore.csv", os.O_WRONLY, 0644)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer hs_file.Close()
+
+	writer := csv.NewWriter(hs_file)
+	writer.Write(header)
+	for index, record := range scoreData {
+		if index > 4 {
+			break
+		}
+		writer.Write(record)
+	}
+	writer.Flush()
+}
+
+func updateHighScore(scorevalue int) {
+	var player_name string
+	rankings := map[int]string{
+		1: "1st",
+		2: "2nd",
+		3: "3rd",
+		4: "4th",
+		5: "5th",
+	}
+	score := strconv.Itoa(scorevalue)
+
+	if !fileExists("Highscore.csv") {
+		player_name = getPlayerName("Enter player name. Max 20 chars: \n")
+		addFirstScore(score, player_name)
+		fmt.Printf("     <<<< %v >>>>\nYou got new High Score. You placed 1st\n", score)
+
+	} else {
+		scoreData, scores := getScoreInfo()
+		if isHighScore(scorevalue, scores) {
+			curr_time := time.Now()
+			formatted_time := curr_time.Format("2006-01-02 15:04:05")
+			new_record := []string{"1", player_name, score, formatted_time}
+			scoreData = append(scoreData, new_record)
+			scoreData = SortData(scoreData)
+
+			addScores(scoreData)
+			pos := highScorePosition(scorevalue, scores)
+			rank := rankings[pos]
+			fmt.Printf("New High Score. You placed %s\n", rank)
+		} else {
+			// Do nothing
+		}
+	}
+
+}
+
+func showMenu() {
+	fmt.Println("\n====================================================================")
+	fmt.Printf("                             MENU\n")
+	fmt.Println("=====================================================================")
+	menu :=
+		`
+1. Play
+2. How to Play
+3. High Scores
+4. Quit
+
+Enter 1,2,3 or 4`
+	fmt.Println(menu)
+}
+
 func main() {
 	// fmt.Println("The random word is: ", randword)
 	fmt.Printf(green + "\n            WELCOME TO DADSON'S WORDLE GAME\n" + reset)
 
-	menu :=
-		`
-	1. Play
-	2. How to Play
-	3. High Scores
-	4. Quit
-
-	Enter 1,2,3 or 4`
 	var command string
+	var playAgain = "y"
 
+	showMenu()
+	fmt.Scanf("%s\n", &command)
 	for true {
-		fmt.Println(menu)
-		fmt.Scanf("%s\n", &command)
+		var guessed_right = true
 		if command == "4" || strings.ToUpper(command) == "QUIT" {
 			break
 		} else if command == "2" {
@@ -203,12 +376,26 @@ func main() {
 		} else if command == "3" {
 			fmt.Println("Not up yet")
 		} else if command == "1" {
+			if strings.ToLower(playAgain) != "y" {
+				fmt.Println("Breaking")
+				break
+			}
+
 			level := 0
 			var randword string
 			var dictionary = GetDict()
 			var score = 0
-			var guessed_right = true
+
 			for true {
+				if !guessed_right {
+					// Print out the result when game ends
+					fmt.Printf("\nSorry, you lost!\n")
+					fmt.Printf("\nThe word is: %v \n", randword)
+					updateHighScore(score)
+					fmt.Println("Do you want to play again [y/n]")
+					fmt.Scanf("\n%s\n", playAgain)
+					break
+				}
 				level++
 				fmt.Println("\n=====================================================================")
 				fmt.Printf("                            WORD %v\n", level)
@@ -223,11 +410,6 @@ func main() {
 				randword = GetWord()
 				randword = strings.ToUpper(randword)
 				fmt.Println("The word is: ", randword)
-
-				if !guessed_right {
-					fmt.Println("Sorry you lost. Please try again")
-					break
-				}
 
 				for i := 1; i < 7; i++ {
 					guesses_left--
@@ -271,12 +453,8 @@ func main() {
 					guessed_right = false
 				}
 			}
-			// Print out the result when game ends
-			fmt.Println("The word is: ", randword)
-
 		} else {
 			fmt.Println("Unexpected command. Enter One of (1,2,3 or 4)")
 		}
-
 	}
 }
