@@ -6,10 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func Get_Dict() (dictionary []string) {
@@ -43,111 +39,6 @@ func WordIn_Dict(guess string, dictionary []string) bool {
 	return false
 }
 
-func fileExists(filename string) bool {
-	// Use os.Stat to get the file information
-	_, err := os.Stat(filename)
-
-	// Check if the error is of type "file does not exist"
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	// If no error, the file exists
-	return true
-}
-
-func SortData(data [][]string) [][]string {
-	// Custom sorting function based on the age (index 2)
-	sort.SliceStable(data, func(i, j int) bool {
-		// Convert the age from string to integer for proper comparison
-		ageI, errI := strconv.Atoi(data[i][2])
-		ageJ, errJ := strconv.Atoi(data[j][2])
-
-		// If there's an error in conversion, consider them equal for now
-		if errI != nil || errJ != nil {
-			return false
-		}
-
-		// Sort in descending order based on age
-		return ageI > ageJ
-	})
-
-	// Update index 0 (ranking) based on the sorted order
-	for i := range data {
-		data[i][0] = strconv.Itoa(i + 1) // Update ranking with 1-based index
-	}
-
-	return data
-}
-
-func getPlayerName(message string) (player string) {
-	reader := bufio.NewReader(os.Stdin)
-
-	fmt.Println(message)
-	player, err := reader.ReadString('\n')
-	player = strings.TrimSpace(player)
-	if err != nil {
-		fmt.Println(err)
-	}
-	for len(player) > 20 {
-		player = getPlayerName("20 chars exceeded. Enter player name again")
-	}
-	return
-}
-
-func getScoreInfo() (scoreData [][]string, scores []int) {
-	csv_file, err := os.Open("Highscore.csv")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer csv_file.Close()
-
-	reader := csv.NewReader(csv_file)
-	records, err := reader.ReadAll()
-	for _, record := range records {
-		scoreData = append(scoreData, record)
-		score, _ := strconv.Atoi(record[2])
-		scores = append(scores, score)
-	}
-	scoreData, scores = scoreData[1:], scores[1:]
-	return
-}
-
-func addFirstScore(score string, player_name string) {
-	header := []string{"Rank", "Player Name", "Score", "DateTime"}
-	hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer hs_file.Close()
-
-	writer := csv.NewWriter(hs_file)
-	writer.Write(header)
-	curr_time := time.Now()
-	formatted_time := curr_time.Format("2006-01-02 15:04:05")
-	writer.Write([]string{"1", player_name, score, formatted_time})
-}
-
-func addScores(scoreData [][]string) {
-	header := []string{"Rank", "Player Name", "Score", "DateTime"}
-	hs_file, err := os.OpenFile("Highscore.csv", os.O_WRONLY, 0644)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer hs_file.Close()
-
-	writer := csv.NewWriter(hs_file)
-	writer.Write(header)
-	for index, record := range scoreData {
-		if index > 4 {
-			break
-		}
-		writer.Write(record)
-	}
-}
-
 // func addScore(score string, player_name string, scoreData bool) {
 // 	header := []string{"Rank", "Player Name", "Score", "DateTime"}
 
@@ -178,31 +69,6 @@ func addScores(scoreData [][]string) {
 // 		writer.Write([]string{"1", player_name, score, formatted_time})
 // 	}
 // }
-
-func updateHighScore(score string) {
-	var player_name string
-	scorevalue, _ := strconv.Atoi(score)
-
-	if !fileExists("Highscore.csv") {
-		player_name = getPlayerName("Enter player name. Max 20 chars: ")
-		addFirstScore(score, player_name)
-
-	} else {
-		scoreData, scores := getScoreInfo()
-		if isHighScore(scorevalue, scores) {
-			curr_time := time.Now()
-			formatted_time := curr_time.Format("2006-01-02 15:04:05")
-			new_record := []string{"1", player_name, score, formatted_time}
-			scoreData = append(scoreData, new_record)
-			scoreData = SortData(scoreData)
-
-			addScores(scoreData)
-		} else {
-			// Do nothing
-		}
-	}
-
-}
 
 func main() {
 	// ANSI escape codes for different colors

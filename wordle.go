@@ -258,7 +258,6 @@ func highScorePosition(newscore int, scores []int) (pos int) {
 	sort.Ints(scores)
 	pos = 1
 	for index, score := range scores {
-		fmt.Printf("Index: %v score: %v", index, score)
 		if score > newscore {
 			pos = len(scores) - index + 1
 			return

@@ -21,14 +21,41 @@ import (
 // 	return
 // }
 
-var scoreData = [][]int{
-	{1, 2, 3},
-	{4, 5, 6},
-	{7, 8, 9},
+func InWord2(char rune, word string) bool {
+	for _, character := range word {
+		if char == character {
+			return true
+		}
+	}
+	return false
 }
 
-func main() {
-	for _, record := range scoreData {
-		fmt.Printf("\t %v\t %v\t %v\n", record[0], record[1], record[2])
+func processGreens(guess string, word string) [5]string {
+	response := [5]string{}
+	for index, char := range guess {
+		if rune(word[index]) == char {
+			response[index] = "Green"
+		}
 	}
+}
+
+func ProcessGuess2(guess string, word string) [5]string {
+	response := [5]string{}
+
+	for index, char := range guess {
+		if rune(word[index]) == char {
+			response[index] = "Green"
+		} else if InWord2(char, word) {
+			response[index] = "Yellow"
+		} else {
+			response[index] = "Red"
+		}
+	}
+	return response
+}
+func main() {
+	word := "guest"
+	guess := "stars"
+	response := ProcessGuess2(guess, word)
+	fmt.Println(response)
 }
