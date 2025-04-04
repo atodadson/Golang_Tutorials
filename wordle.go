@@ -181,7 +181,7 @@ func GetColour(colour_name string) (colour string) {
 
 var GameRules = fmt.Sprintf("=================================================================\n" +
 	"1. Each guess must be a valid 5-letter word\n" +
-	"2. The color of each letter will change to show how close your guess was to the word\nExample: " +
+	"2. The color of each letter will change to show how close your guess was to the correct word\n\nExample: " +
 	red + "W O R " + yellow + "D " + green + "S" + reset + " means:\n" +
 	red + "'W', 'O', 'R'" + reset + " are not in the word\n" +
 	yellow + "D" + reset + " is in the word but in the wrong spot\n" +
@@ -204,8 +204,8 @@ func SortData(data [][]string) [][]string {
 	// Custom sorting function based on the age (index 2)
 	sort.SliceStable(data, func(i, j int) bool {
 		// Convert the age from string to integer for proper comparison
-		ageI, errI := strconv.Atoi(data[i][2])
-		ageJ, errJ := strconv.Atoi(data[j][2])
+		ageI, errI := strconv.Atoi(data[i][1])
+		ageJ, errJ := strconv.Atoi(data[j][1])
 
 		// If there's an error in conversion, consider them equal for now
 		if errI != nil || errJ != nil {
@@ -242,9 +242,13 @@ func SortData(data [][]string) [][]string {
 // }
 
 func isHighScore(newscore int, scores []int) bool {
-	for _, score := range scores {
-		if newscore > score {
-			return true
+	if len(scores) <= 5 {
+		return true
+	} else {
+		for _, score := range scores {
+			if newscore > score {
+				return true
+			}
 		}
 	}
 	return false
@@ -252,10 +256,11 @@ func isHighScore(newscore int, scores []int) bool {
 
 func highScorePosition(newscore int, scores []int) (pos int) {
 	sort.Ints(scores)
-	pos = 0
+	pos = 1
 	for index, score := range scores {
-		if newscore > score {
-			pos = index + 1
+		fmt.Printf("Index: %v score: %v", index, score)
+		if score > newscore {
+			pos = len(scores) - index + 1
 			return
 		}
 	}
@@ -273,7 +278,7 @@ func getScoreInfo() (scoreData [][]string, scores []int) {
 	records, err := reader.ReadAll()
 	for _, record := range records {
 		scoreData = append(scoreData, record)
-		score, _ := strconv.Atoi(record[2])
+		score, _ := strconv.Atoi(record[1])
 		scores = append(scores, score)
 	}
 	scoreData, scores = scoreData[1:], scores[1:]
@@ -329,7 +334,7 @@ func updateHighScore(scorevalue int) {
 
 	if !fileExists("Highscore.csv") {
 		addFirstScore(score)
-		fmt.Printf("     <<<< %v >>>>\nYou got new High Score. You placed 1st\n", score)
+		fmt.Printf("You got a new High Score. You placed 1st\n     <<<< Your Score: %v >>>>\n", score)
 
 	} else {
 		scoreData, scores := getScoreInfo()
@@ -343,9 +348,26 @@ func updateHighScore(scorevalue int) {
 			addScores(scoreData)
 			pos := highScorePosition(scorevalue, scores)
 			rank := rankings[pos]
-			fmt.Printf("New High Score. You placed %s\n", rank)
+			fmt.Printf("You got a new High Score. You placed %s\n     <<<< Your Score: %v >>>>\n", rank, score)
 		} else {
-			// Do nothing
+			fmt.Printf("     <<<< Your Score: %v >>>>\n", score)
+		}
+	}
+
+}
+
+func showHighScores() {
+	filename := "Highscore.csv"
+	fmt.Println("\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	fmt.Printf("                             HIGH SCORES\n")
+	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	if !fileExists(filename) {
+		fmt.Println("No High Score recorded yet")
+	} else {
+		scoreData, _ := getScoreInfo()
+		for i := 0; i < len(scoreData); i++ {
+			record := scoreData[i]
+			fmt.Printf("\t %v. %v\t %v\n", record[0], record[1], record[2])
 		}
 	}
 
@@ -381,12 +403,14 @@ func main() {
 			break
 		} else if command == "2" {
 			fmt.Println(GameRules)
-
+			showMenu()
+			fmt.Scanf("%s\n", &command)
 		} else if command == "3" {
-			fmt.Println("Not up yet")
+			showHighScores()
+			showMenu()
+			fmt.Scanf("%s\n", &command)
 		} else if command == "1" {
 			if strings.ToLower(playAgain) != "y" {
-				fmt.Println("Breaking")
 				break
 			}
 
@@ -402,7 +426,7 @@ func main() {
 					fmt.Printf("\nThe word is: %v \n", randword)
 					updateHighScore(score)
 					fmt.Println("Do you want to play again [y/n]")
-					fmt.Scanf("\n%s\n", playAgain)
+					fmt.Scanf("\n%s\n", &playAgain)
 					break
 				}
 				level++
@@ -461,6 +485,13 @@ func main() {
 					}
 					guessed_right = false
 				}
+			}
+			if strings.ToLower(playAgain) == "y" {
+				// Do not show menu again
+			} else {
+				showMenu()
+				fmt.Scanf("%s\n", &command)
+				playAgain = "y"
 			}
 		} else {
 			fmt.Println("Unexpected command. Enter One of (1,2,3 or 4)")
