@@ -224,11 +224,22 @@ func SortData(data [][]string) [][]string {
 	return data
 }
 
-func getPlayerName(message string) (player string) {
-	fmt.Println(message)
-	fmt.Scanf("\n", &player)
-	return
-}
+// func getPlayerNames(message string) (player string) {
+// 	reader := bufio.NewReader(os.Stdin)
+
+// 	fmt.Println(message)
+// 	// var container string
+// 	// fmt.Scanf("%s", &container)
+// 	player_name, err := reader.ReadString('\n')
+// 	player = strings.TrimSpace(player_name)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	for len(player) > 20 {
+// 		player = getPlayerName("20 chars exceeded. Enter player name again")
+// 	}
+// 	return
+// }
 
 func isHighScore(newscore int, scores []int) bool {
 	for _, score := range scores {
@@ -269,8 +280,8 @@ func getScoreInfo() (scoreData [][]string, scores []int) {
 	return
 }
 
-func addFirstScore(score string, player_name string) {
-	header := []string{"Rank", "Player Name", "Score", "DateTime"}
+func addFirstScore(score string) {
+	header := []string{"Rank", "Score", "DateTime"}
 	hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
@@ -282,12 +293,12 @@ func addFirstScore(score string, player_name string) {
 	writer.Write(header)
 	curr_time := time.Now()
 	formatted_time := curr_time.Format("2006-01-02 15:04:05")
-	writer.Write([]string{"1", player_name, score, formatted_time})
+	writer.Write([]string{"1", score, formatted_time})
 	writer.Flush()
 }
 
 func addScores(scoreData [][]string) {
-	header := []string{"Rank", "Player Name", "Score", "DateTime"}
+	header := []string{"Rank", "Score", "DateTime"}
 	hs_file, err := os.OpenFile("Highscore.csv", os.O_WRONLY, 0644)
 
 	if err != nil {
@@ -307,7 +318,6 @@ func addScores(scoreData [][]string) {
 }
 
 func updateHighScore(scorevalue int) {
-	var player_name string
 	rankings := map[int]string{
 		1: "1st",
 		2: "2nd",
@@ -318,8 +328,7 @@ func updateHighScore(scorevalue int) {
 	score := strconv.Itoa(scorevalue)
 
 	if !fileExists("Highscore.csv") {
-		player_name = getPlayerName("Enter player name. Max 20 chars: \n")
-		addFirstScore(score, player_name)
+		addFirstScore(score)
 		fmt.Printf("     <<<< %v >>>>\nYou got new High Score. You placed 1st\n", score)
 
 	} else {
@@ -327,7 +336,7 @@ func updateHighScore(scorevalue int) {
 		if isHighScore(scorevalue, scores) {
 			curr_time := time.Now()
 			formatted_time := curr_time.Format("2006-01-02 15:04:05")
-			new_record := []string{"1", player_name, score, formatted_time}
+			new_record := []string{"1", score, formatted_time}
 			scoreData = append(scoreData, new_record)
 			scoreData = SortData(scoreData)
 
