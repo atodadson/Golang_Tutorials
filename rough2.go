@@ -30,32 +30,83 @@ func InWord2(char rune, word string) bool {
 	return false
 }
 
-func processGreens(guess string, word string) [5]string {
-	response := [5]string{}
-	for index, char := range guess {
-		if rune(word[index]) == char {
-			response[index] = "Green"
-		}
-	}
+// func processGreens(guess string, word string) [5]string {
+// 	response := [5]string{}
+// 	for index, char := range guess {
+// 		if rune(word[index]) == char {
+// 			response[index] = "Green"
+// 		}
+// 	}
+// }
+
+func numberLetters (word string) (map[string][]int){
+    var numbering = make(map[string][]int)
+    for index, letter_rune := range word {
+        letter := string(letter_rune)
+        if _, exists := numbering[letter]; exists {
+            //Just don't do anything
+            // numbering[letter] = append(numbering[letter], (index+1) )
+        } else {
+            numbering[letter] = []int{(index + 1)}
+        }
+        for i := index+ 1; i < len(word); i++ {
+            check_rune := word[i]
+            check_letter := string(check_rune)
+            if check_letter == letter {
+                numbering[letter] = append(numbering[letter], (i+1))
+            }
+        }
+    }
+    return numbering
 }
 
 func ProcessGuess2(guess string, word string) [5]string {
 	response := [5]string{}
+	word_map := numberLetters(word)
+// 	guess_map := numberLetters(guess)
 
-	for index, char := range guess {
-		if rune(word[index]) == char {
-			response[index] = "Green"
-		} else if InWord2(char, word) {
-			response[index] = "Yellow"
-		} else {
-			response[index] = "Red"
-		}
+	for index, letter_rune := range guess {
+	    letter := string(letter_rune)
+	    positions, exists := word_map[letter]
+	    if !exists {
+	        response[index] = "Red"
+	    } else {
+	        response[index] = "Yellow"
+	        for _, position := range positions {
+	            fmt.Printf("position: %T, index: %T\n", position, (index+1))
+	            if position == (index + 1) {
+	                response[index] = "Green"
+	            }
+	        }
+	    }
 	}
+
+// 	for index, char := range guess {
+// 		if rune(word[index]) == char {
+// 			response[index] = "Green"
+// 		} else if InWord2(char, word) {
+// 			response[index] = "Yellow"
+// 		} else {
+// 			response[index] = "Red"
+// 		}
+// 	}
 	return response
 }
 func main() {
-	word := "guest"
-	guess := "stars"
+	word := "guess"
+	guess := "gsses"
 	response := ProcessGuess2(guess, word)
 	fmt.Println(response)
+	fmt.Println(word[2])
+	mymap := make(map[int]int)
+	mymap[34] = 43
+	mymap[12] = 21
+	check, err := mymap[23]
+	fmt.Println(check)
+	fmt.Println(err)
+// 	numberLetters(word)
+	result := numberLetters(word)
+	fmt.Println(result)
+	answer := ProcessGuess2(guess, word)
+	fmt.Println(answer)
 }
