@@ -70,6 +70,21 @@ func WordIn_Dict(guess string, dictionary []string) bool {
 // 	}
 // }
 
+// func ProcessGuess(guess string, word string) [5]string {
+// 	response := [5]string{}
+//
+// 	for index, char := range guess {
+// 		if rune(word[index]) == char {
+// 			response[index] = "Green"
+// 		} else if InWord(char, word) {
+// 			response[index] = "Yellow"
+// 		} else {
+// 			response[index] = "Red"
+// 		}
+// 	}
+// 	return response
+// }
+
 func main() {
 	// ANSI escape codes for different colors
 	// red := "\033[31m"
