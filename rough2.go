@@ -60,10 +60,24 @@ func numberLetters (word string) (map[string][]int){
     return numbering
 }
 
+func removeElement(slice []int, item int) []int {
+    index := -1
+    for i, v := range slice {
+        if v == item {
+            index = i
+            break
+        }
+    }
+    if index == -1 {
+        return slice
+    }
+    fmt.Printf("item: %v deleted", item)
+    return append(slice[:index], slice[index+1:]...)
+}
+
 func ProcessGuess2(guess string, word string) [5]string {
 	response := [5]string{}
 	word_map := numberLetters(word)
-// 	guess_map := numberLetters(guess)
 
 	for index, letter_rune := range guess {
 	    letter := string(letter_rune)
@@ -76,25 +90,41 @@ func ProcessGuess2(guess string, word string) [5]string {
 	            fmt.Printf("position: %T, index: %T\n", position, (index+1))
 	            if position == (index + 1) {
 	                response[index] = "Green"
+	                if len(positions) == 1 {
+	                    delete(word_map, letter)
+	                } else {
+	                    word_map[letter] = removeElement(positions, (index + 1) )
+	                }
 	            }
 	        }
 	    }
 	}
 
-// 	for index, char := range guess {
-// 		if rune(word[index]) == char {
-// 			response[index] = "Green"
-// 		} else if InWord2(char, word) {
-// 			response[index] = "Yellow"
-// 		} else {
-// 			response[index] = "Red"
-// 		}
-// 	}
+	for index, letter_rune := range guess {
+	    letter := string(letter_rune)
+	    positions, exists := word_map[letter]
+	    if response[index] == "Green" {
+	        // Do nothng
+	    } else {
+            if !exists {
+                response[index] = "Red"
+            } else {
+                response[index] = "Yellow"
+                if len(positions) == 1 {
+                    delete(word_map, letter)
+                } else {
+                    word_map[letter] = removeElement(positions, (index + 1) )
+                }
+            }
+	    }
+
+	}
 	return response
 }
+
 func main() {
 	word := "guess"
-	guess := "gsses"
+	guess := "gssss"
 	response := ProcessGuess2(guess, word)
 	fmt.Println(response)
 	fmt.Println(word[2])
