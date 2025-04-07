@@ -150,18 +150,83 @@ func WordInDict(guess string, dictionary []string) bool {
 	return false
 }
 
+func numberLetters (word string) (map[string][]int){
+    var numbering = make(map[string][]int)
+    for index, letter_rune := range word {
+        letter := string(letter_rune)
+        if _, exists := numbering[letter]; exists {
+            //Just don't do anything
+        } else {
+            numbering[letter] = []int{(index + 1)}
+        }
+        for i := index+ 1; i < len(word); i++ {
+            check_rune := word[i]
+            check_letter := string(check_rune)
+            if check_letter == letter {
+                numbering[letter] = append(numbering[letter], (i+1))
+            }
+        }
+    }
+    return numbering
+}
+
+func removeElement(slice []int, item int) []int {
+    index := -1
+    for i, v := range slice {
+        if v == item {
+            index = i
+            break
+        }
+    }
+    if index == -1 {
+        return slice
+    }
+    return append(slice[:index], slice[index+1:]...)
+}
+
 // ProcessGuess processes the guess and returns a response
 func ProcessGuess(guess string, word string) [5]string {
 	response := [5]string{}
+	word_map := numberLetters(word)
 
-	for index, char := range guess {
-		if rune(word[index]) == char {
-			response[index] = "Green"
-		} else if InWord(char, word) {
-			response[index] = "Yellow"
-		} else {
-			response[index] = "Red"
-		}
+	for index, letter_rune := range guess {
+	    letter := string(letter_rune)
+	    positions, exists := word_map[letter]
+	    if !exists {
+	        response[index] = "Red"
+	    } else {
+	        response[index] = "Yellow"
+	        for _, position := range positions {
+	            if position == (index + 1) {
+	                response[index] = "Green"
+	                if len(positions) == 1 {
+	                    delete(word_map, letter)
+	                } else {
+	                    word_map[letter] = removeElement(positions, (index + 1) )
+	                }
+	            }
+	        }
+	    }
+	}
+
+	for index, letter_rune := range guess {
+	    letter := string(letter_rune)
+	    positions, exists := word_map[letter]
+	    if response[index] == "Green" {
+	        // Do nothng
+	    } else {
+            if !exists {
+                response[index] = "Red"
+            } else {
+                response[index] = "Yellow"
+                if len(positions) == 1 {
+                    delete(word_map, letter)
+                } else {
+                    word_map[letter] = removeElement(positions, (index + 1) )
+                }
+            }
+	    }
+
 	}
 	return response
 }
@@ -179,13 +244,20 @@ func GetColour(colour_name string) (colour string) {
 	return
 }
 
-var GameRules = fmt.Sprintf("=================================================================\n" +
+func showGameRules() {
+	fmt.Println("\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	fmt.Printf("                            HOW TO PLAY\n")
+	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    var GameRules = fmt.Sprintf(
 	"1. Each guess must be a valid 5-letter word\n" +
-	"2. The color of each letter will change to show how close your guess was to the correct word\n\nExample: " +
+	"2. The color of each letter will change to show how close your guess is to the answer\n\nExample: " +
 	red + "W O R " + yellow + "D " + green + "S" + reset + " means:\n" +
 	red + "'W', 'O', 'R'" + reset + " are not in the word\n" +
 	yellow + "D" + reset + " is in the word but in the wrong spot\n" +
-	green + "S" + reset + " is in the word and in the right spot\n" + "=================================================================\n\n")
+	green + "S" + reset + " is in the word and in the right spot\n")
+	fmt.Println(GameRules)
+}
+
 
 func fileExists(filename string) bool {
 	// Use os.Stat to get the file information
@@ -369,7 +441,6 @@ func showHighScores() {
 			fmt.Printf("\t %v. %v\t %v\n", record[0], record[1], record[2])
 		}
 	}
-
 }
 
 func showMenu() {
@@ -401,7 +472,7 @@ func main() {
 		if command == "4" || strings.ToUpper(command) == "QUIT" {
 			break
 		} else if command == "2" {
-			fmt.Println(GameRules)
+			showGameRules()
 			showMenu()
 			fmt.Scanf("%s\n", &command)
 		} else if command == "3" {
