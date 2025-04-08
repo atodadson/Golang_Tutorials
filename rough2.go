@@ -1,11 +1,3 @@
-package main
-
-import (
-	"fmt"
-	"encoding/json"
-	"os"
-)
-
 // func getPlayerNames(message string) (player string) {
 // 	reader := bufio.NewReader(os.Stdin)
 
@@ -17,16 +9,35 @@ import (
 // 	if err != nil {
 // 		fmt.Println(err)
 // 	}
-// 	for len(player) > 20 {
-// 		player = getPlayerNames("20 chars exceeded. Enter player name again")
-// 	}
-// 	return
-// }
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"runtime"
+	// "encoding/json"
+)
+
+type HighScore struct {
+	Rank     int `json:"rank"`
+	Score    int `json:"score"`
+	DateTime int `json:"datetime"`
+}
+
+func getHighScorePath() (filepath string) {
+	var base string
+	if runtime.GOOS == "windows" {
+		base = os.Getenv("APPDATA")
+	} else {
+		base = os.Getenv("HOME")
+	}
+	filepath = base
+	return
+}
 
 func main() {
-    filename := "products.json"
-    json_file, _ := os.Open(filename)
-    json_map, _ := json.Unmarshal(json_file)
-    fmt.Printf("%v", json_map)
-
+	filepath := getHighScorePath()
+	fmt.Println(filepath)
+	fmt.Printf()
 }
