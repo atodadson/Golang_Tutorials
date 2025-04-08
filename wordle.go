@@ -37,9 +37,10 @@ var score_list = map[int]int{1: 13, 2: 8, 3: 5, 4: 3, 5: 2, 6: 1}
 
 // Prints the current colouring of the keyboard
 func ShowKeyboard(keyboard map[string]string) {
-	row1 := []string{"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"}
-	row2 := []string{"A", "S", "D", "F", "G", "H", "J", "K", "L"}
-	row3 := []string{"Z", "X", "C", "V", "B", "N", "M"}
+	row1 := []string{"       Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"}
+	row2 := []string{"       A", "S", "D", "F", "G", "H", "J", "K", "L"}
+	row3 := []string{"        Z", "X", "C", "V", "B", "N", "M"}
+	fmt.Println("")
 	for _, letter := range row1 {
 		fmt.Printf(keyboard[letter] + letter + " " + reset)
 	}
@@ -51,7 +52,7 @@ func ShowKeyboard(keyboard map[string]string) {
 	for _, letter := range row3 {
 		fmt.Printf(keyboard[letter] + letter + " " + reset)
 	}
-	fmt.Println("")
+	fmt.Printf("\n\n")
 }
 
 // Updates the colour of the keyboard after processing response
@@ -313,16 +314,20 @@ func SortData(data [][]string) [][]string {
 // }
 
 func isHighScore(newscore int, scores []int) bool {
-	if len(scores) <= 5 {
-		return true
+	if newscore == 0 {
+		return false
 	} else {
-		for _, score := range scores {
-			if newscore > score {
-				return true
+		if len(scores) <= 5 {
+			return true
+		} else {
+			for _, score := range scores {
+				if newscore > score {
+					return true
+				}
 			}
 		}
+		return false
 	}
-	return false
 }
 
 func highScorePosition(newscore int, scores []int) (pos int) {
@@ -347,7 +352,7 @@ func getScoreInfo() (scoreData [][]string, scores []int) {
 	reader := csv.NewReader(csv_file)
 	records, err := reader.ReadAll()
 	for _, record := range records {
-		fmt.Printf("THis is record: %v", record)
+		// fmt.Printf("THis is record: %v", record)
 		scoreData = append(scoreData, record)
 		score, _ := strconv.Atoi(record[1])
 		scores = append(scores, score)
@@ -444,7 +449,7 @@ func showHighScores() {
 }
 
 func showMenu() {
-	fmt.Println("\n====================================================================")
+	fmt.Println("\n=====================================================================")
 	fmt.Printf("                             MENU\n")
 	fmt.Println("=====================================================================")
 	menu :=
@@ -500,10 +505,10 @@ func main() {
 					break
 				}
 				level++
-				fmt.Println("\n=====================================================================")
+				fmt.Println("\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_")
 				fmt.Printf("                            WORD %v\n", level)
 				fmt.Printf("                      CURRENT SCORE: %v\n", score)
-				fmt.Println("=====================================================================")
+				fmt.Println("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_")
 
 				// Declaration of variable for each level
 				keyboard := CreateKeyboard()
@@ -512,7 +517,7 @@ func main() {
 				guesses_left := 7
 				randword = GetWord()
 				randword = strings.ToUpper(randword)
-				fmt.Println("The word is: ", randword)
+				// fmt.Println("The word is: ", randword)
 
 				for i := 1; i < 7; i++ {
 					guesses_left--
