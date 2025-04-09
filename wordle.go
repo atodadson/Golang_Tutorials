@@ -3,9 +3,12 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -30,6 +33,36 @@ func CreateKeyboard() (keyboard map[string]string) {
 		keyboard[string(i)] = reset
 	}
 	return keyboard
+}
+
+type HighScore struct {
+	Rank     string `json:"rank"`
+	Score    int    `json:"score"`
+	DateTime string `json:"datetime"`
+}
+
+type HighScores struct {
+	HighScores []HighScore `json: "highscore"`
+}
+
+func (h HighScore) toString() string {
+	return fmt.Sprintf("%v\t%v\t%v\n", h.Rank, h.Score, h.DateTime)
+}
+
+func (h HighScores) toString() string {
+	var String string
+	for _, highscore := range h.HighScores {
+		String = fmt.Sprintf("%v%v", String, highscore.toString())
+	}
+
+	return String
+}
+
+func (h HighScores) getScores() (scores []int) {
+	for _, highscore := range h.HighScores {
+		scores = append(scores, highscore.Score)
+	}
+	return
 }
 
 // Score values
@@ -272,28 +305,26 @@ func fileExists(filename string) bool {
 	return true
 }
 
-func SortData(data [][]string) [][]string {
-	// Custom sorting function based on the age (index 2)
-	sort.SliceStable(data, func(i, j int) bool {
-		// Convert the age from string to integer for proper comparison
-		ageI, errI := strconv.Atoi(data[i][1])
-		ageJ, errJ := strconv.Atoi(data[j][1])
-
-		// If there's an error in conversion, consider them equal for now
-		if errI != nil || errJ != nil {
-			return false
-		}
-
-		// Sort in descending order based on age
-		return ageI > ageJ
-	})
-
-	// Update index 0 (ranking) based on the sorted order
-	for i := range data {
-		data[i][0] = strconv.Itoa(i + 1) // Update ranking with 1-based index
+func SortData(highScores HighScores) HighScores {
+	rankings := map[int]string{
+		1: "1st",
+		2: "2nd",
+		3: "3rd",
+		4: "4th",
+		5: "5th",
 	}
 
-	return data
+	// Sorting the HighScores slice based on Score
+	sort.Slice(highScores.HighScores, func(i, j int) bool {
+		return highScores.HighScores[i].Score > highScores.HighScores[j].Score // Descending order
+	})
+
+	for i := 0; i < len(highScores.HighScores); i++ {
+		pos, _ := rankings[(i + 1)]
+		highScores.HighScores[i].Rank = pos
+	}
+
+	return highScores
 }
 
 // func getPlayerNames(message string) (player string) {
@@ -312,6 +343,19 @@ func SortData(data [][]string) [][]string {
 // 	}
 // 	return
 // }
+
+// returns the path (string) where the HighScore Json file is stored
+// depending on the OS the program is running on
+func getHighScorePath() (file_path string) {
+	var base string
+	if runtime.GOOS == "windows" {
+		base = os.Getenv("APPDATA")
+	} else {
+		base = os.Getenv("HOME")
+	}
+	file_path = filepath.Join(base, "highscore.json")
+	return
+}
 
 func isHighScore(newscore int, scores []int) bool {
 	if newscore == 0 {
@@ -342,41 +386,65 @@ func highScorePosition(newscore int, scores []int) (pos int) {
 	return
 }
 
-func getScoreInfo() (scoreData [][]string, scores []int) {
-	csv_file, err := os.Open("Highscore.csv")
+func getScoreInfo() (highScores HighScores) { // (scoreData [][]string, scores []int)
+	file_path := getHighScorePath()
+
+	highScoreFile, err := os.ReadFile(file_path)
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer csv_file.Close()
 
-	reader := csv.NewReader(csv_file)
-	records, err := reader.ReadAll()
-	for _, record := range records {
-		// fmt.Printf("THis is record: %v", record)
-		scoreData = append(scoreData, record)
-		score, _ := strconv.Atoi(record[1])
-		scores = append(scores, score)
+	extract_err := json.Unmarshal([]byte(highScoreFile), &highScores)
+	if extract_err != nil {
+		fmt.Println(extract_err)
 	}
-	scoreData, scores = scoreData[1:], scores[1:]
+
+	// for _, highscore := range highScores.HighScores {
+	// 	scores = append(scores, highscore.Score)
+	// 	scoreData = append(scoreData, []string{
+	// 		highscore.Rank,
+	// 		strconv.Itoa(highscore.Score),
+	// 		highscore.DateTime,
+	// 	})
+	// }
+
 	return
 }
 
-func addFirstScore(score string) {
-	header := []string{"Rank", "Score", "DateTime"}
-	hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
+// Takes the HighScores struct as input
+// and Write the content to the Highscore file
+func writeHighScore(highscores HighScores) {
+	// Get the directory for the highscore json
+	file_path := getHighScorePath()
 
-	if err != nil {
-		fmt.Println(err)
+	// Ensure only 5 records of the highscore are written to the file
+	if len(highscores.HighScores) >= 5 {
+		highscores.HighScores = highscores.HighScores[:5]
 	}
-	defer hs_file.Close()
 
-	writer := csv.NewWriter(hs_file)
-	writer.Write(header)
-	curr_time := time.Now()
-	formatted_time := curr_time.Format("2006-01-02 15:04")
-	writer.Write([]string{"1", score, formatted_time})
-	writer.Flush()
+	// Format the content to a json format
+	jsonData, _ := json.MarshalIndent(highscores, "", " ")
+
+	// Write the jsonData to the file
+	os.WriteFile(file_path, jsonData, 0644)
 }
+
+// func addFirstScore(score string) {
+// 	header := []string{"Rank", "Score", "DateTime"}
+// 	hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
+
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	defer hs_file.Close()
+
+// 	writer := csv.NewWriter(hs_file)
+// 	writer.Write(header)
+// 	curr_time := time.Now()
+// 	formatted_time := curr_time.Format("2006-01-02 15:04")
+// 	writer.Write([]string{"1", score, formatted_time})
+// 	writer.Flush()
+// }
 
 func addScores(scoreData [][]string) {
 	header := []string{"Rank", "Score", "DateTime"}
@@ -408,20 +476,24 @@ func updateHighScore(scorevalue int) {
 	}
 	score := strconv.Itoa(scorevalue)
 
-	if !fileExists("Highscore.csv") {
-		addFirstScore(score)
-		fmt.Printf("You got a new High Score. You placed 1st\n     <<<< Your Score: %v >>>>\n", score)
+	if !fileExists(getHighScorePath()) {
+		datetime := time.Now().Format("02-Jan-2006 03:04:05 PM")
+		highScores := HighScores{
+			HighScores: []HighScore{{Rank: "1st", Score: scorevalue, DateTime: datetime}},
+		}
+		writeHighScore(highScores)
 
 	} else {
-		scoreData, scores := getScoreInfo()
+		highScores := getScoreInfo()
+		scores := highScores.getScores()
 		if isHighScore(scorevalue, scores) {
-			curr_time := time.Now()
-			formatted_time := curr_time.Format("2006-01-02 15:04:05")
-			new_record := []string{"1", score, formatted_time}
-			scoreData = append(scoreData, new_record)
-			scoreData = SortData(scoreData)
+			datetime := time.Now().Format("02-Jan-2006 03:04:05 PM")
+			highScore := HighScore{Rank: "1st", Score: scorevalue, DateTime: datetime}
+			highScores.HighScores = append(highScores.HighScores, highScore)
 
-			addScores(scoreData)
+			highScores = SortData(highScores)
+			writeHighScore(highScores)
+
 			pos := highScorePosition(scorevalue, scores)
 			rank := rankings[pos]
 			fmt.Printf("You got a new High Score. You placed %s\n     <<<< Your Score: %v >>>>\n", rank, score)
@@ -433,18 +505,15 @@ func updateHighScore(scorevalue int) {
 }
 
 func showHighScores() {
-	filename := "Highscore.csv"
+	file_path := getHighScorePath()
 	fmt.Println("\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	fmt.Printf("                             HIGH SCORES\n")
 	fmt.Println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	if !fileExists(filename) {
+	if !fileExists(file_path) {
 		fmt.Println("No High Score recorded yet")
 	} else {
-		scoreData, _ := getScoreInfo()
-		for i := 0; i < len(scoreData); i++ {
-			record := scoreData[i]
-			fmt.Printf("\t %v. %v\t %v\n", record[0], record[1], record[2])
-		}
+		highScores := getScoreInfo()
+		fmt.Printf("%v", highScores.toString())
 	}
 }
 
