@@ -14,30 +14,164 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"runtime"
-	// "encoding/json"
 )
 
-type HighScore struct {
-	Rank     int `json:"rank"`
-	Score    int `json:"score"`
-	DateTime int `json:"datetime"`
-}
+// type HighScore struct {
+// 	Rank     string `json:"rank"`
+// 	Score    int    `json:"score"`
+// 	DateTime string `json:"datetime"`
+// }
 
-func getHighScorePath() (filepath string) {
-	var base string
-	if runtime.GOOS == "windows" {
-		base = os.Getenv("APPDATA")
-	} else {
-		base = os.Getenv("HOME")
-	}
-	filepath = base
-	return
-}
+// type HighScores struct {
+// 	HighScores []HighScore `json: "highscore"`
+// }
+
+// returns the path (string) where the HighScore Json file is stored
+// depending on the OS the program is running on
+// func getHighScorePath() (file_path string) {
+// 	var base string
+// 	if runtime.GOOS == "windows" {
+// 		base = os.Getenv("APPDATA")
+// 	} else {
+// 		base = os.Getenv("HOME")
+// 	}
+// 	file_path = filepath.Join(base, "highscore.json")
+// 	return
+// }
+
+// func fileExists(filename string) bool {
+// 	// Use os.Stat to get the file information
+// 	_, err := os.Stat(filename)
+
+// 	// Check if the error is of type "file does not exist"
+// 	if os.IsNotExist(err) {
+// 		return false
+// 	}
+
+// 	// If no error, the file exists
+// 	return true
+// }
+
+// Takes the HighScores struct as input
+// and Write the content to the Highscore file
+// func writeHighScore(highscores HighScores) {
+// 	// Get the directory for the highscore json
+// 	file_path := getHighScorePath()
+
+// 	// Format the content to a json format
+// 	jsonData, _ := json.MarshalIndent(highscores, "", " ")
+
+// 	// Write the jsonData to the file
+// 	os.WriteFile(file_path, jsonData, 0644)
+// }
+
+// func getScoreInfo3() (scoreData [][]string, scores []int) {
+// 	file_path := getHighScorePath()
+// 	highScores := HighScores{}
+
+// 	highScoreFile, err := os.ReadFile(file_path)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	extract_err := json.Unmarshal([]byte(highScoreFile), &highScores)
+// 	if extract_err != nil {
+// 		log.Fatal(extract_err)
+// 	}
+
+// 	for _, highscore := range highScores.HighScores {
+// 		scores = append(scores, highscore.Score)
+// 		scoreData = append(scoreData, []string{
+// 			strconv.Itoa(highscore.Rank),
+// 			strconv.Itoa(highscore.Score),
+// 			highscore.DateTime,
+// 		})
+// 	}
+
+// 	return
+
+// csv_file, err := os.Open("Highscore.csv")
+// if err != nil {
+// 	fmt.Println(err)
+// }
+// defer csv_file.Close()
+
+// reader := csv.NewReader(csv_file)
+// records, err := reader.ReadAll()
+// for _, record := range records {
+// 	// fmt.Printf("THis is record: %v", record)
+// 	scoreData = append(scoreData, record)
+// 	score, _ := strconv.Atoi(record[1])
+// 	scores = append(scores, score)
+// }
+// scoreData, scores = scoreData[1:], scores[1:]
+// }
+
+// var scoreList = HighScores{
+// 	HighScores: []HighScore{
+// 		{Rank: "1", Score: 24, DateTime: "2025-04-08 09:51:09"},
+// 		{Rank: "2", Score: 12, DateTime: "2025-04-08 10:51:09"},
+// 	},
+// }
+
+// func getScoreInfo() (scoreData [][]string, scores []int) {
+// 	file_path := getHighScorePath()
+// 	highScores := HighScores{}
+
+// 	highScoreFile, err := os.ReadFile(file_path)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+
+// 	extract_err := json.Unmarshal([]byte(highScoreFile), &highScores)
+// 	if extract_err != nil {
+// 		fmt.Println(extract_err)
+// 	}
+
+// 	for _, highscore := range highScores.HighScores {
+// 		scores = append(scores, highscore.Score)
+// 		scoreData = append(scoreData, []string{
+// 			highscore.Rank,
+// 			strconv.Itoa(highscore.Score),
+// 			highscore.DateTime,
+// 		})
+// 	}
+
+// 	return
+// }
+
+// func SortData(data [][]string) [][]string {
+// 	// Sorting the HighScores slice based on Score
+// 	sort.Slice(highScores.HighScores, func(i, j int) bool {
+// 		return highScores.HighScores[i].Score > highScores.HighScores[j].Score // Descending order
+// 	})
+
+// 	// Custom sorting function based on the age (index 2)
+// 	sort.SliceStable(data, func(i, j int) bool {
+// 		// Convert the age from string to integer for proper comparison
+// 		ageI, errI := strconv.Atoi(data[i][1])
+// 		ageJ, errJ := strconv.Atoi(data[j][1])
+
+// 		// If there's an error in conversion, consider them equal for now
+// 		if errI != nil || errJ != nil {
+// 			return false
+// 		}
+
+// 		// Sort in descending order based on age
+// 		return ageI > ageJ
+// 	})
+
+// 	// Update index 0 (ranking) based on the sorted order
+// 	for i := range data {
+// 		data[i][0] = strconv.Itoa(i + 1) // Update ranking with 1-based index
+// 	}
+
+// 	return data
+// }
 
 func main() {
-	filepath := getHighScorePath()
-	fmt.Println(filepath)
-	fmt.Printf()
+	sliced := scoreList.HighScores[1]
+	fmt.Println(sliced)
+
+	fmt.Println(len(scoreList.HighScores))
 }
