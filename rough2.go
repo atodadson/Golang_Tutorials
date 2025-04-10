@@ -226,7 +226,7 @@ func main() {
 	for _, word := range all_words {
 		if _, exists := my_map[word]; !exists {
 			my_map[word] = word
-			unique_words = append(unique_words, word)
+			unique_words = append(unique_words, strings.ToLower(word))
 		} else {
 			fmt.Printf("This is duplicate %s\n", word)
 		}
