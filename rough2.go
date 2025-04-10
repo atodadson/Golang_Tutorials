@@ -10,11 +10,10 @@
 // 		fmt.Println(err)
 // 	}
 
-package main
+// package main
 
-import (
-	"fmt"
-)
+// import (
+// 	"fmt"
 
 // type HighScore struct {
 // 	Rank     string `json:"rank"`
@@ -169,9 +168,73 @@ import (
 // 	return data
 // }
 
-func main() {
-	sliced := scoreList.HighScores[1]
-	fmt.Println(sliced)
+// // go:embed dictionary5.txt
+// var diction string
 
-	fmt.Println(len(scoreList.HighScores))
+// func main() {
+// 	fmt.Println(diction)
+// }
+
+// package main
+
+// import (
+// 	_ "embed"
+// 	"fmt"
+// 	"strings"
+// )
+
+// // Embed the text file.
+// //
+// //go:embed dictionary5.txt
+// var content string
+
+// func main() {
+// 	lines := strings.Split(content, "\n")
+// 	fmt.Printf("%T", lines)
+// }
+
+package main
+
+import (
+	_ "embed"
+	"fmt"
+	"os"
+	"strings"
+)
+
+//go:embed mywords.txt
+var mywordsString string
+
+//go:embed new_words.txt
+var new_wordsString string
+
+//go:embed dictionary5.txt
+var dictionaryString string
+
+func main() {
+	mywords := strings.Split(mywordsString, "\n")
+	new_words := strings.Split(new_wordsString, "\n")
+	dictionary := strings.Split(dictionaryString, "\n")
+
+	all_words := append(mywords, new_words...)
+	all_words = append(all_words, dictionary...)
+
+	fmt.Printf("len mywords: %v newwords: %v dictionary: %v all_words: %v", len(mywords), len(new_words), len(dictionary), len(all_words))
+
+	var unique_words []string
+	my_map := make(map[string]string)
+	for _, word := range all_words {
+		if _, exists := my_map[word]; !exists {
+			my_map[word] = word
+			unique_words = append(unique_words, word)
+		} else {
+			fmt.Printf("This is duplicate %s\n", word)
+		}
+	}
+	fmt.Printf("This is the len of unique words %v", len(unique_words))
+
+	file, _ := os.OpenFile("new_dictionary.txt", os.O_CREATE|os.O_WRONLY, 0644)
+	for _, word := range unique_words {
+		file.WriteString(word)
+	}
 }
