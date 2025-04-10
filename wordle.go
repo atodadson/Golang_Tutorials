@@ -28,7 +28,7 @@ var reset = "\033[0m"
 
 // Get dictionary word list
 //
-//go:embed new_dictionary.txt
+//go:embed dictionary.txt
 var dictionaryString string
 var dictionary = strings.Split(dictionaryString, "\n")
 
