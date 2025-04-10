@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	_ "embed"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -26,14 +26,20 @@ var green = "\033[32m"
 var yellow = "\033[33m"
 var reset = "\033[0m"
 
-// Keyboard display
-func CreateKeyboard() (keyboard map[string]string) {
-	keyboard = make(map[string]string, 6)
-	for i := 'A'; i <= 'Z'; i++ {
-		keyboard[string(i)] = reset
-	}
-	return keyboard
-}
+// Get dictionary word list
+//
+//go:embed dictionary5.txt
+var dictionaryString string
+var dictionary = strings.Split(dictionaryString, "\n")
+
+// Get game word list
+//
+//go:embed mywords.txt
+var guessString string
+var guessWords = strings.Split(guessString, "\n")
+
+// Score values
+var score_list = map[int]int{1: 13, 2: 8, 3: 5, 4: 3, 5: 2, 6: 1}
 
 type HighScore struct {
 	Rank     string `json:"rank"`
@@ -42,7 +48,16 @@ type HighScore struct {
 }
 
 type HighScores struct {
-	HighScores []HighScore `json: "highscore"`
+	HighScores []HighScore `json:"highscores"`
+}
+
+// Keyboard display
+func CreateKeyboard() (keyboard map[string]string) {
+	keyboard = make(map[string]string, 6)
+	for i := 'A'; i <= 'Z'; i++ {
+		keyboard[string(i)] = reset
+	}
+	return keyboard
 }
 
 func (h HighScore) toString() string {
@@ -65,14 +80,11 @@ func (h HighScores) getScores() (scores []int) {
 	return
 }
 
-// Score values
-var score_list = map[int]int{1: 13, 2: 8, 3: 5, 4: 3, 5: 2, 6: 1}
-
 // Prints the current colouring of the keyboard
 func ShowKeyboard(keyboard map[string]string) {
-	row1 := []string{"       Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"}
-	row2 := []string{"       A", "S", "D", "F", "G", "H", "J", "K", "L"}
-	row3 := []string{"        Z", "X", "C", "V", "B", "N", "M"}
+	row1 := []string{"     ", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"}
+	row2 := []string{"      ", "A", "S", "D", "F", "G", "H", "J", "K", "L"}
+	row3 := []string{"       ", "Z", "X", "C", "V", "B", "N", "M"}
 	fmt.Println("")
 	for _, letter := range row1 {
 		fmt.Printf(keyboard[letter] + letter + " " + reset)
@@ -102,55 +114,11 @@ func UpdateKeyboard(letter string, colour string, keyboard map[string]string) ma
 	return keyboard
 }
 
-// Returns all the words in the 5-letter words dictionary
-func GetDict() (dictionary []string) {
-	// Open the first file
-	file, err := os.Open("dictionary5.txt")
-	if err != nil {
-		fmt.Printf("Error opening file: %v\n", err)
-		return
-	}
-	defer file.Close()
-
-	// Read all words into a slice
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		dictionary = append(dictionary, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Printf("Error reading file: %v\n", err)
-		return
-	}
-	// fmt.Println(dictionary)
-	return
-}
-
 // Returns a random word for the game words
 func GetWord() (randword string) {
-	// Open the first file
-	file, err := os.Open("mywords.txt")
-	if err != nil {
-		fmt.Printf("Error opening file: %v\n", err)
-		return
-	}
-	defer file.Close()
-
-	// Read all words into a slice
-	var words []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		words = append(words, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Printf("Error reading file: %v\n", err)
-		return
-	}
-
 	// Generate a random index
-	randomIndex := rand.Intn(len(words))
-	randword = words[randomIndex]
+	randomIndex := rand.Intn(len(guessWords))
+	randword = guessWords[randomIndex]
 	return
 }
 
@@ -177,7 +145,7 @@ func allValuesGreen(m [5]string) bool {
 // Checks if word is in file containing wordlist
 func WordInDict(guess string, dictionary []string) bool {
 	for _, word := range dictionary {
-		if strings.ToUpper(guess) == strings.ToUpper(word) {
+		if strings.TrimSpace(strings.ToUpper(guess)) == strings.TrimSpace(strings.ToUpper(word)) {
 			return true
 		}
 	}
@@ -327,23 +295,6 @@ func SortData(highScores HighScores) HighScores {
 	return highScores
 }
 
-// func getPlayerNames(message string) (player string) {
-// 	reader := bufio.NewReader(os.Stdin)
-
-// 	fmt.Println(message)
-// 	// var container string
-// 	// fmt.Scanf("%s", &container)
-// 	player_name, err := reader.ReadString('\n')
-// 	player = strings.TrimSpace(player_name)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	for len(player) > 20 {
-// 		player = getPlayerName("20 chars exceeded. Enter player name again")
-// 	}
-// 	return
-// }
-
 // returns the path (string) where the HighScore Json file is stored
 // depending on the OS the program is running on
 func getHighScorePath() (file_path string) {
@@ -386,7 +337,7 @@ func highScorePosition(newscore int, scores []int) (pos int) {
 	return
 }
 
-func getScoreInfo() (highScores HighScores) { // (scoreData [][]string, scores []int)
+func getScoreInfo() (highScores HighScores) {
 	file_path := getHighScorePath()
 
 	highScoreFile, err := os.ReadFile(file_path)
@@ -398,15 +349,6 @@ func getScoreInfo() (highScores HighScores) { // (scoreData [][]string, scores [
 	if extract_err != nil {
 		fmt.Println(extract_err)
 	}
-
-	// for _, highscore := range highScores.HighScores {
-	// 	scores = append(scores, highscore.Score)
-	// 	scoreData = append(scoreData, []string{
-	// 		highscore.Rank,
-	// 		strconv.Itoa(highscore.Score),
-	// 		highscore.DateTime,
-	// 	})
-	// }
 
 	return
 }
@@ -428,23 +370,6 @@ func writeHighScore(highscores HighScores) {
 	// Write the jsonData to the file
 	os.WriteFile(file_path, jsonData, 0644)
 }
-
-// func addFirstScore(score string) {
-// 	header := []string{"Rank", "Score", "DateTime"}
-// 	hs_file, err := os.OpenFile("Highscore.csv", os.O_CREATE|os.O_WRONLY, 0644)
-
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	defer hs_file.Close()
-
-// 	writer := csv.NewWriter(hs_file)
-// 	writer.Write(header)
-// 	curr_time := time.Now()
-// 	formatted_time := curr_time.Format("2006-01-02 15:04")
-// 	writer.Write([]string{"1", score, formatted_time})
-// 	writer.Flush()
-// }
 
 func addScores(scoreData [][]string) {
 	header := []string{"Rank", "Score", "DateTime"}
@@ -560,8 +485,8 @@ func main() {
 
 			level := 0
 			var randword string
-			var dictionary = GetDict()
 			var score = 0
+			var guess_list []string
 
 			for true {
 				if !guessed_right {
@@ -585,7 +510,7 @@ func main() {
 				var guess string
 				guesses_left := 7
 				randword = GetWord()
-				randword = strings.ToUpper(randword)
+				randword = strings.TrimSpace(strings.ToUpper(randword))
 				// fmt.Println("The word is: ", randword)
 
 				for i := 1; i < 7; i++ {
@@ -616,15 +541,23 @@ func main() {
 					}
 					ShowKeyboard(keyboard)
 
-					fmt.Printf(GetColour(response[0]) + string(guess[0]) + " " + reset)
-					fmt.Printf(GetColour(response[1]) + string(guess[1]) + " " + reset)
-					fmt.Printf(GetColour(response[2]) + string(guess[2]) + " " + reset)
-					fmt.Printf(GetColour(response[3]) + string(guess[3]) + " " + reset)
-					fmt.Printf(GetColour(response[4]) + string(guess[4]) + " " + "\n" + reset)
+					letter1 := fmt.Sprintf(GetColour(response[0]) + string(guess[0]) + " " + reset)
+					letter2 := fmt.Sprintf(GetColour(response[1]) + string(guess[1]) + " " + reset)
+					letter3 := fmt.Sprintf(GetColour(response[2]) + string(guess[2]) + " " + reset)
+					letter4 := fmt.Sprintf(GetColour(response[3]) + string(guess[3]) + " " + reset)
+					letter5 := fmt.Sprintf(GetColour(response[4]) + string(guess[4]) + " " + reset)
+					coloured_guess := fmt.Sprintf(letter1 + letter2 + letter3 + letter4 + letter5)
+
+					guess_list = append(guess_list, coloured_guess)
+					// Print the coloured guesses
+					for _, coloured_guess := range guess_list {
+						fmt.Println(coloured_guess)
+					}
 					if allValuesGreen(response) {
 						fmt.Println("Yeeey, You got it right. That's a great guess. Progress to the next word")
 						guessed_right = true
 						score = score + score_list[i]
+						guess_list = []string{}
 						break
 					}
 					guessed_right = false
@@ -639,6 +572,9 @@ func main() {
 			}
 		} else {
 			fmt.Println("Unexpected command. Enter One of (1,2,3 or 4)")
+			showMenu()
+			fmt.Scanf("%s\n", &command)
+			playAgain = "y"
 		}
 	}
 }
